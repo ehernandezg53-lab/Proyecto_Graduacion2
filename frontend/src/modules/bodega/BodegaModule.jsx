@@ -359,13 +359,10 @@ export const BodegaModule = ({ activeSubTab: externalSubTab, setActiveSubTab: ex
       {/* Header & Sub-navigation tabs */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }} className="no-print">
         <div>
-          <h1 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
             <Package size={22} style={{ color: 'var(--yellow)' }} />
             Módulo de Bodega de Repuestos
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-            Gestión de inventario en Quetzales (Q), ingreso de repuestos y generación de órdenes de ingreso.
-          </p>
         </div>
 
         {/* Action button based on active tab */}

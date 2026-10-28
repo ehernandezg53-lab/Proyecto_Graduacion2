@@ -714,13 +714,10 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
       {/* Encabezado Principal */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
             <Navigation size={28} style={{ color: 'var(--blue)' }} />
             Módulo de Logística y Control de Viajes
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
-            Consulta de Viajes, Programación de Cargas y Catálogo de Clientes y Conductores
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>

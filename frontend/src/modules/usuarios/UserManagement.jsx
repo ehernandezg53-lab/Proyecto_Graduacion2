@@ -362,9 +362,6 @@ export const UserManagement = ({ activeMainTab: externalActiveMainTab, setActive
             <Users size={22} style={{ color: 'var(--yellow)' }} />
             Gestión de Usuarios y Seguridad
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', margin: '0.25rem 0 0 0' }}>
-            Control de cuentas de operadores y solicitudes de restablecimiento de contraseñas
-          </p>
         </div>
 
         {activeMainTab === 'usuarios' && (

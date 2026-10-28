@@ -70,9 +70,6 @@ export const ReportesModule = ({ activeSubTab = 'dashboard', setActiveSubTab }) 
             <BarChart3 size={24} style={{ color: 'var(--yellow)' }} />
             Centro de Reportes y Analítica
           </h1>
-          <p>
-            Consultas consolidadas, análisis de rendimiento y exportación formal en Excel y PDF para el Sistema TM.
-          </p>
         </div>
         <div>
           <button
