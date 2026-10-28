@@ -1,0 +1,1 @@
+export { TallerModule } from './TallerModule';

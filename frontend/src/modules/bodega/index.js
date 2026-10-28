@@ -1,0 +1,1 @@
+export { BodegaModule } from './BodegaModule';

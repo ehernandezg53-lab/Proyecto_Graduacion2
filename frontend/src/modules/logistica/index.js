@@ -1,0 +1,1 @@
+export { LogisticaModule } from './LogisticaModule';
