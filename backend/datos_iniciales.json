@@ -1,0 +1,1236 @@
+[
+{
+  "model": "users.permiso",
+  "pk": 1,
+  "fields": {
+    "nombre_permiso": "ver_usuarios",
+    "modulo": "Usuarios"
+  }
+},
+{
+  "model": "users.permiso",
+  "pk": 2,
+  "fields": {
+    "nombre_permiso": "ver_bodega",
+    "modulo": "Bodega"
+  }
+},
+{
+  "model": "users.permiso",
+  "pk": 3,
+  "fields": {
+    "nombre_permiso": "ver_taller",
+    "modulo": "Taller"
+  }
+},
+{
+  "model": "users.permiso",
+  "pk": 4,
+  "fields": {
+    "nombre_permiso": "ver_logistica",
+    "modulo": "Logística"
+  }
+},
+{
+  "model": "users.rol",
+  "pk": 1,
+  "fields": {
+    "nombre": "Administrador",
+    "descripcion": "Acceso completo a todos los módulos y configuración del sistema"
+  }
+},
+{
+  "model": "users.rol",
+  "pk": 2,
+  "fields": {
+    "nombre": "Bodeguero",
+    "descripcion": "Acceso exclusivo al módulo de bodega de repuestos e ingresos"
+  }
+},
+{
+  "model": "users.rol",
+  "pk": 3,
+  "fields": {
+    "nombre": "Taller",
+    "descripcion": "Acceso exclusivo al módulo de taller y órdenes de trabajo"
+  }
+},
+{
+  "model": "users.rol",
+  "pk": 4,
+  "fields": {
+    "nombre": "Logística",
+    "descripcion": "Acceso exclusivo al módulo de logística, conductores y viajes"
+  }
+},
+{
+  "model": "users.rolpermiso",
+  "pk": 1,
+  "fields": {
+    "rol": 1,
+    "permiso": 1
+  }
+},
+{
+  "model": "users.rolpermiso",
+  "pk": 2,
+  "fields": {
+    "rol": 1,
+    "permiso": 2
+  }
+},
+{
+  "model": "users.rolpermiso",
+  "pk": 3,
+  "fields": {
+    "rol": 1,
+    "permiso": 3
+  }
+},
+{
+  "model": "users.rolpermiso",
+  "pk": 4,
+  "fields": {
+    "rol": 1,
+    "permiso": 4
+  }
+},
+{
+  "model": "users.rolpermiso",
+  "pk": 5,
+  "fields": {
+    "rol": 2,
+    "permiso": 2
+  }
+},
+{
+  "model": "users.rolpermiso",
+  "pk": 6,
+  "fields": {
+    "rol": 3,
+    "permiso": 3
+  }
+},
+{
+  "model": "users.rolpermiso",
+  "pk": 7,
+  "fields": {
+    "rol": 4,
+    "permiso": 4
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$kQ4x8VMULg2oNp9nKTZRdW$ARHW9fcJIa3j08vE2hD2KqFY7Z/AOqR6S4sXcEy8UPs=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "admin",
+    "nombre": "Admin",
+    "apellido": "Sistema",
+    "telefono": "7000-0000",
+    "rol": 1,
+    "activo": true,
+    "fecha_creacion": "2026-08-23T22:24:37.794Z",
+    "fecha_modificacion": "2026-08-23T22:24:37.794Z",
+    "creado_por": null,
+    "is_staff": true,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$2jblm8ohLE5d70fFcRh6NU$36YYBBq8eWUjM9kNsiAe8Ah01d+JtlUimuqOBZoPFYY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bodega",
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "telefono": "7777-8888",
+    "rol": 2,
+    "activo": true,
+    "fecha_creacion": "2026-08-23T22:24:38.951Z",
+    "fecha_modificacion": "2026-10-13T21:36:02.991Z",
+    "creado_por": null,
+    "is_staff": false,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$fWy5A305nCxDhdx4mcEGqN$r878VCs3omyFL1GpgnanoczTNkNzDFNk7OFdAOqsGKk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "taller",
+    "nombre": "Carlos",
+    "apellido": "Gómez",
+    "telefono": "7777-8888",
+    "rol": 3,
+    "activo": true,
+    "fecha_creacion": "2026-08-23T22:24:40.126Z",
+    "fecha_modificacion": "2026-10-16T00:43:31.084Z",
+    "creado_por": null,
+    "is_staff": false,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$5dXlLr4UNthzyYWwuNzWyF$A4hk7YpLhtSzT80mlOz8YEIb2fqLv/nBZERS8FubHyI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "marialpz",
+    "nombre": "María",
+    "apellido": "López",
+    "telefono": "7777-8888",
+    "rol": 4,
+    "activo": true,
+    "fecha_creacion": "2026-08-23T22:24:41.785Z",
+    "fecha_modificacion": "2026-10-13T21:20:16.057Z",
+    "creado_por": null,
+    "is_staff": false,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$bl4EF1DKL9C06h5Ba3Q4Va$KE1D6ftQHJe27I2Ph1VU0Lu/ktMJlHjz0lKlUJ8lwkA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "joslopez",
+    "nombre": "Jose",
+    "apellido": "Lopez",
+    "telefono": "55509988",
+    "rol": 3,
+    "activo": true,
+    "fecha_creacion": "2026-10-18T14:35:40.661Z",
+    "fecha_modificacion": "2026-10-18T14:40:32.331Z",
+    "creado_por": 1,
+    "is_staff": false,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$aRnfZ9FyZCwbwUx06id3BZ$pU6EEG+XjdeZDnExX4GQqRIzePZ957UtXMeG/kohZAc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "educas",
+    "nombre": "Eduardo",
+    "apellido": "Castillo",
+    "telefono": "54952332",
+    "rol": 1,
+    "activo": true,
+    "fecha_creacion": "2026-10-26T08:05:43.517Z",
+    "fecha_modificacion": "2026-10-26T08:14:49.164Z",
+    "creado_por": 1,
+    "is_staff": false,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Np6HTrhGAE9Fw6n2Z9JbvD$sLHJsJ1qjbqVqX/o28Ag3dSGf6UrU4O5LF82tnci1DA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "lu_rodri",
+    "nombre": "Luis",
+    "apellido": "Rodriguez",
+    "telefono": "54321133",
+    "rol": 2,
+    "activo": true,
+    "fecha_creacion": "2026-10-27T07:25:42.637Z",
+    "fecha_modificacion": "2026-10-27T07:25:42.637Z",
+    "creado_por": 1,
+    "is_staff": false,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.usuario",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$b2itTpnIi1df8EXLcXTP5d$g5rN85T79xkbfdbxhCXBvcHpA9ACU19Fm+GqyKAwUh0=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "admin2",
+    "nombre": "Eduardo",
+    "apellido": "Hernandez",
+    "telefono": null,
+    "rol": 1,
+    "activo": true,
+    "fecha_creacion": "2026-10-28T08:43:40.957Z",
+    "fecha_modificacion": "2026-10-28T08:43:40.957Z",
+    "creado_por": null,
+    "is_staff": true,
+    "cambio_temporal": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.solicitudrestablecimiento",
+  "pk": 2,
+  "fields": {
+    "numero_ticket": "TKT-10001",
+    "usuario": 3,
+    "motivo": "Solicitud de restablecimiento por olvido o bloqueo de contraseña",
+    "pin_temporal": "340123",
+    "estado": "Completado",
+    "autorizado_por": 1,
+    "fecha_solicitud": "2026-10-16T00:36:27.781Z",
+    "fecha_autorizacion": "2026-10-16T00:39:45.643Z",
+    "fecha_completado": "2026-10-16T00:43:31.090Z"
+  }
+},
+{
+  "model": "users.solicitudrestablecimiento",
+  "pk": 3,
+  "fields": {
+    "numero_ticket": "TKT-10002",
+    "usuario": 5,
+    "motivo": "Solicitud de restablecimiento por olvido o bloqueo de contraseña",
+    "pin_temporal": "320440",
+    "estado": "Completado",
+    "autorizado_por": 1,
+    "fecha_solicitud": "2026-10-18T14:38:11.725Z",
+    "fecha_autorizacion": "2026-10-18T14:38:34.558Z",
+    "fecha_completado": "2026-10-18T14:40:32.349Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 6,
+  "fields": {
+    "codigo": "100192",
+    "nombre": "Filtro de Aceite Heavy Duty",
+    "descripcion": "Filtro de alta eficiencia para motor diésel",
+    "stock": 25,
+    "stock_minimo": 2,
+    "precio_unitario": "18.50",
+    "fecha_creacion": "2026-09-06T18:08:25.354Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 7,
+  "fields": {
+    "codigo": "100193",
+    "nombre": "Batería 12V 100Ah",
+    "descripcion": "Batería de alto rendimiento para transporte pesado",
+    "stock": 7,
+    "stock_minimo": 2,
+    "precio_unitario": "120.00",
+    "fecha_creacion": "2026-09-06T18:08:25.366Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 8,
+  "fields": {
+    "codigo": "100194",
+    "nombre": "Llanta 295/80 R22.5",
+    "descripcion": "Llanta de tracción para camión de carga",
+    "stock": 12,
+    "stock_minimo": 2,
+    "precio_unitario": "290.00",
+    "fecha_creacion": "2026-09-06T18:08:25.381Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 9,
+  "fields": {
+    "codigo": "100195",
+    "nombre": "Filtro de Aire Primario",
+    "descripcion": "Filtro para admisión de motor diésel",
+    "stock": 2,
+    "stock_minimo": 2,
+    "precio_unitario": "35.00",
+    "fecha_creacion": "2026-09-06T18:08:25.397Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 10,
+  "fields": {
+    "codigo": "100196",
+    "nombre": "Pastillas de Freno Delanteras",
+    "descripcion": "Juego de pastillas cerámicas de alta durabilidad",
+    "stock": 13,
+    "stock_minimo": 2,
+    "precio_unitario": "65.00",
+    "fecha_creacion": "2026-09-06T18:08:25.411Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 11,
+  "fields": {
+    "codigo": "100197",
+    "nombre": "Llanta Reencauchada Benelli",
+    "descripcion": "Reencauchada",
+    "stock": 1,
+    "stock_minimo": 2,
+    "precio_unitario": "500.00",
+    "fecha_creacion": "2026-09-13T22:25:09.175Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 13,
+  "fields": {
+    "codigo": "100198",
+    "nombre": "cojinete",
+    "descripcion": "cojinete",
+    "stock": 0,
+    "stock_minimo": 2,
+    "precio_unitario": "8.50",
+    "fecha_creacion": "2026-10-11T22:14:32.140Z"
+  }
+},
+{
+  "model": "bodega.repuesto",
+  "pk": 14,
+  "fields": {
+    "codigo": "100199",
+    "nombre": "LLanta reencauchada",
+    "descripcion": "Llanta reparada",
+    "stock": 0,
+    "stock_minimo": 2,
+    "precio_unitario": "500.00",
+    "fecha_creacion": "2026-10-18T14:41:38.637Z"
+  }
+},
+{
+  "model": "bodega.ordeningreso",
+  "pk": 1,
+  "fields": {
+    "numero_orden": "61635500",
+    "proveedor": "Distribuidora Central de Repuestos S.A.",
+    "observaciones": "Ingreso de lote inicial de mantenimiento preventivo",
+    "estado": "Ingresado",
+    "creado_por": 1,
+    "ingresado_por": 1,
+    "fecha_creacion": "2026-09-06T17:29:44.280Z",
+    "fecha_ingreso": "2026-10-09T07:47:39.444Z"
+  }
+},
+{
+  "model": "bodega.ordeningreso",
+  "pk": 2,
+  "fields": {
+    "numero_orden": "61635501",
+    "proveedor": "LLANREPA",
+    "observaciones": "Llanta reencauchada",
+    "estado": "Ingresado",
+    "creado_por": 1,
+    "ingresado_por": 1,
+    "fecha_creacion": "2026-09-13T22:26:10.945Z",
+    "fecha_ingreso": "2026-09-13T22:26:10.943Z"
+  }
+},
+{
+  "model": "bodega.detalleordeningreso",
+  "pk": 1,
+  "fields": {
+    "orden_ingreso": 1,
+    "repuesto": 6,
+    "descripcion_repuesto": "Filtro de Aceite Heavy Duty - Marca Fleetguard LF14000NN",
+    "cantidad": 10,
+    "precio_unitario": "18.50"
+  }
+},
+{
+  "model": "bodega.detalleordeningreso",
+  "pk": 2,
+  "fields": {
+    "orden_ingreso": 1,
+    "repuesto": 7,
+    "descripcion_repuesto": "Batería 12V 100Ah Libre de Mantenimiento",
+    "cantidad": 4,
+    "precio_unitario": "120.00"
+  }
+},
+{
+  "model": "bodega.detalleordeningreso",
+  "pk": 3,
+  "fields": {
+    "orden_ingreso": 2,
+    "repuesto": 11,
+    "descripcion_repuesto": "Reencauchada",
+    "cantidad": 1,
+    "precio_unitario": "500.00"
+  }
+},
+{
+  "model": "bodega.salidarepuesto",
+  "pk": 1,
+  "fields": {
+    "repuesto": 10,
+    "orden_trabajo": 2,
+    "cantidad": 2,
+    "observacion": "",
+    "fecha": "2026-09-13T22:43:02.122Z",
+    "registrado_por": 1
+  }
+},
+{
+  "model": "bodega.salidarepuesto",
+  "pk": 2,
+  "fields": {
+    "repuesto": 6,
+    "orden_trabajo": 1,
+    "cantidad": 2,
+    "observacion": "Despacho de filtros para mantenimiento preventivo",
+    "fecha": "2026-09-19T08:37:52.643Z",
+    "registrado_por": 2
+  }
+},
+{
+  "model": "bodega.salidarepuesto",
+  "pk": 3,
+  "fields": {
+    "repuesto": 7,
+    "orden_trabajo": 3,
+    "cantidad": 1,
+    "observacion": "Se le entrego al mecanico para comprobacion de arranque",
+    "fecha": "2026-10-18T14:43:03.475Z",
+    "registrado_por": 1
+  }
+},
+{
+  "model": "taller.vehiculo",
+  "pk": 1,
+  "fields": {
+    "placa": "C-89312",
+    "unidad": "TM-14",
+    "modelo": "TM-14",
+    "estado": "Disponible",
+    "activo": true
+  }
+},
+{
+  "model": "taller.vehiculo",
+  "pk": 2,
+  "fields": {
+    "placa": "C-72109",
+    "unidad": "TM-20",
+    "modelo": "TM-20",
+    "estado": "Disponible",
+    "activo": true
+  }
+},
+{
+  "model": "taller.vehiculo",
+  "pk": 3,
+  "fields": {
+    "placa": "C-44589",
+    "unidad": "TM-01",
+    "modelo": "TM-01",
+    "estado": "Inactivo",
+    "activo": false
+  }
+},
+{
+  "model": "taller.mecanico",
+  "pk": 1,
+  "fields": {
+    "nombre": "Juan Pérez",
+    "area": "General",
+    "telefono": null,
+    "activo": true,
+    "fecha_creacion": "2026-09-19T08:53:03.470Z"
+  }
+},
+{
+  "model": "taller.mecanico",
+  "pk": 2,
+  "fields": {
+    "nombre": "Roberto Estrada",
+    "area": "Electromecánico",
+    "telefono": null,
+    "activo": true,
+    "fecha_creacion": "2026-09-19T08:53:03.481Z"
+  }
+},
+{
+  "model": "taller.mecanico",
+  "pk": 3,
+  "fields": {
+    "nombre": "Miguel Ángel López",
+    "area": "Soldadura",
+    "telefono": null,
+    "activo": true,
+    "fecha_creacion": "2026-09-19T08:53:03.491Z"
+  }
+},
+{
+  "model": "taller.mecanico",
+  "pk": 4,
+  "fields": {
+    "nombre": "Mario Ramírez",
+    "area": "Llantero",
+    "telefono": null,
+    "activo": true,
+    "fecha_creacion": "2026-09-19T08:53:03.501Z"
+  }
+},
+{
+  "model": "taller.mecanico",
+  "pk": 5,
+  "fields": {
+    "nombre": "Fernando Castro",
+    "area": "Tapicería",
+    "telefono": null,
+    "activo": true,
+    "fecha_creacion": "2026-09-19T08:53:03.513Z"
+  }
+},
+{
+  "model": "taller.ordentrabajo",
+  "pk": 1,
+  "fields": {
+    "numero_orden": "OT-2026-001",
+    "vehiculo": 1,
+    "mecanico": null,
+    "descripcion": "Mantenimiento preventivo de 50k km y cambio de aceite",
+    "mecanico_asignado": null,
+    "area_asignada": null,
+    "estado": "Cerrada",
+    "fecha_creacion": "2026-09-06T17:29:44.261Z"
+  }
+},
+{
+  "model": "taller.ordentrabajo",
+  "pk": 2,
+  "fields": {
+    "numero_orden": "OT-2026-002",
+    "vehiculo": 2,
+    "mecanico": null,
+    "descripcion": "Cambio de sistema de frenos delanteros",
+    "mecanico_asignado": null,
+    "area_asignada": null,
+    "estado": "Cerrada",
+    "fecha_creacion": "2026-09-06T17:29:44.266Z"
+  }
+},
+{
+  "model": "taller.ordentrabajo",
+  "pk": 3,
+  "fields": {
+    "numero_orden": "OT-1001",
+    "vehiculo": 2,
+    "mecanico": 2,
+    "descripcion": "Unidad no arranca",
+    "mecanico_asignado": "Roberto Estrada",
+    "area_asignada": "Electromecánico",
+    "estado": "Cerrada",
+    "fecha_creacion": "2026-10-18T14:37:46.249Z"
+  }
+},
+{
+  "model": "logistica.cliente",
+  "pk": 1,
+  "fields": {
+    "numero_cliente": "607020",
+    "nombre": "GRUPO VITAL VITALSA TICSA -ST-FUE",
+    "direccion": "Km 14.5 Carretera a Mixco, Zona 4 de Mixco, Guatemala",
+    "fecha_creacion": "2026-10-09T09:40:03.252Z"
+  }
+},
+{
+  "model": "logistica.cliente",
+  "pk": 2,
+  "fields": {
+    "numero_cliente": "612150",
+    "nombre": "UNO FUELS GUATEMALA S.A.",
+    "direccion": "Calzada Aguilar Batres 34-78, Zona 11, Ciudad de Guatemala",
+    "fecha_creacion": "2026-10-09T09:40:03.261Z"
+  }
+},
+{
+  "model": "logistica.cliente",
+  "pk": 3,
+  "fields": {
+    "numero_cliente": "605110",
+    "nombre": "DISTRIBUIDORA CENTRAL DE TRANSPORTES",
+    "direccion": "Puerto Quetzal, Lote 12 Manzana B, Escuintla",
+    "fecha_creacion": "2026-10-09T09:40:03.268Z"
+  }
+},
+{
+  "model": "logistica.cliente",
+  "pk": 4,
+  "fields": {
+    "numero_cliente": "607001",
+    "nombre": "PETROCORP",
+    "direccion": "2a. calle A 17-57, zona 15, Ciudad de Guatemala",
+    "fecha_creacion": "2026-10-27T07:30:04.692Z"
+  }
+},
+{
+  "model": "logistica.conductor",
+  "pk": 1,
+  "fields": {
+    "codigo_carnet": "0000701010",
+    "nombre": "Roberto Estrada",
+    "fecha_vencimiento_licencia": "2027-05-20",
+    "activo": true,
+    "fecha_creacion": "2026-10-09T09:40:03.278Z"
+  }
+},
+{
+  "model": "logistica.conductor",
+  "pk": 2,
+  "fields": {
+    "codigo_carnet": "0000701020",
+    "nombre": "Juan Pérez",
+    "fecha_vencimiento_licencia": "2026-12-15",
+    "activo": true,
+    "fecha_creacion": "2026-10-09T09:40:03.285Z"
+  }
+},
+{
+  "model": "logistica.conductor",
+  "pk": 3,
+  "fields": {
+    "codigo_carnet": "0000701030",
+    "nombre": "Carlos Gómez",
+    "fecha_vencimiento_licencia": "2025-08-26",
+    "activo": true,
+    "fecha_creacion": "2026-10-09T09:40:03.293Z"
+  }
+},
+{
+  "model": "logistica.conductor",
+  "pk": 4,
+  "fields": {
+    "codigo_carnet": "0000701040",
+    "nombre": "Mario Ramírez",
+    "fecha_vencimiento_licencia": "2028-01-30",
+    "activo": true,
+    "fecha_creacion": "2026-10-09T09:40:03.301Z"
+  }
+},
+{
+  "model": "logistica.viaje",
+  "pk": 1,
+  "fields": {
+    "numero_viaje": "612150",
+    "vehiculo": 3,
+    "cliente": 1,
+    "conductor": 1,
+    "fecha_envio": "2026-10-09",
+    "hora_envio": "08:30:00",
+    "peso_carga_kg": "4500.50",
+    "cantidad_rollos": 24,
+    "estado": "Abierta",
+    "fecha_creacion": "2026-10-09T09:40:03.312Z"
+  }
+},
+{
+  "model": "logistica.viaje",
+  "pk": 2,
+  "fields": {
+    "numero_viaje": "71907",
+    "vehiculo": 3,
+    "cliente": 2,
+    "conductor": 2,
+    "fecha_envio": "2026-10-09",
+    "hora_envio": "10:00:00",
+    "peso_carga_kg": "3200.00",
+    "cantidad_rollos": 16,
+    "estado": "Abierta",
+    "fecha_creacion": "2026-10-09T09:40:03.320Z"
+  }
+},
+{
+  "model": "logistica.viaje",
+  "pk": 3,
+  "fields": {
+    "numero_viaje": "612151",
+    "vehiculo": 3,
+    "cliente": 1,
+    "conductor": 3,
+    "fecha_envio": "2026-10-10",
+    "hora_envio": "08:30:00",
+    "peso_carga_kg": "2500.00",
+    "cantidad_rollos": 15,
+    "estado": "Abierta",
+    "fecha_creacion": "2026-10-10T07:24:41.723Z"
+  }
+},
+{
+  "model": "logistica.viaje",
+  "pk": 8,
+  "fields": {
+    "numero_viaje": "612152",
+    "vehiculo": 2,
+    "cliente": 3,
+    "conductor": 2,
+    "fecha_envio": "2026-10-18",
+    "hora_envio": "08:30:00",
+    "peso_carga_kg": "240.00",
+    "cantidad_rollos": 5,
+    "estado": "Cerrada",
+    "fecha_creacion": "2026-10-18T14:45:33.284Z"
+  }
+},
+{
+  "model": "logistica.viaje",
+  "pk": 9,
+  "fields": {
+    "numero_viaje": "612153",
+    "vehiculo": 2,
+    "cliente": 2,
+    "conductor": 4,
+    "fecha_envio": "2026-10-24",
+    "hora_envio": "08:30:00",
+    "peso_carga_kg": "35.00",
+    "cantidad_rollos": 1,
+    "estado": "Cerrada",
+    "fecha_creacion": "2026-10-24T15:51:37.984Z"
+  }
+},
+{
+  "model": "logistica.viaje",
+  "pk": 10,
+  "fields": {
+    "numero_viaje": "612154",
+    "vehiculo": 2,
+    "cliente": 1,
+    "conductor": 1,
+    "fecha_envio": "2026-10-29",
+    "hora_envio": "00:32:00",
+    "peso_carga_kg": "95.00",
+    "cantidad_rollos": 2,
+    "estado": "Abierta",
+    "fecha_creacion": "2026-10-24T16:22:35.169Z"
+  }
+},
+{
+  "model": "logistica.tipoalambre",
+  "pk": 1,
+  "fields": {
+    "codigo": "AL-72150",
+    "nombre": "Alambre Galvanizado Calibre 12",
+    "peso_estandar_kg": "50.00",
+    "ubicacion_defecto": "Bodega Central - Bahía A",
+    "activo": true,
+    "fecha_creacion": "2026-10-27T07:54:17.173Z"
+  }
+},
+{
+  "model": "logistica.tipoalambre",
+  "pk": 2,
+  "fields": {
+    "codigo": "AL-72151",
+    "nombre": "Alambre Galvanizado Calibre 14",
+    "peso_estandar_kg": "50.00",
+    "ubicacion_defecto": "Bodega Central - Bahía A",
+    "activo": true,
+    "fecha_creacion": "2026-10-27T07:54:17.191Z"
+  }
+},
+{
+  "model": "logistica.tipoalambre",
+  "pk": 3,
+  "fields": {
+    "codigo": "AL-72152",
+    "nombre": "Alambre Galvanizado Calibre 16",
+    "peso_estandar_kg": "50.00",
+    "ubicacion_defecto": "Bodega Central - Bahía B",
+    "activo": true,
+    "fecha_creacion": "2026-10-27T07:54:17.194Z"
+  }
+},
+{
+  "model": "logistica.tipoalambre",
+  "pk": 4,
+  "fields": {
+    "codigo": "AL-72153",
+    "nombre": "Alambre de Púa Alta Resistencia",
+    "peso_estandar_kg": "35.00",
+    "ubicacion_defecto": "Bodega Central - Bahía C",
+    "activo": true,
+    "fecha_creacion": "2026-10-27T07:54:17.198Z"
+  }
+},
+{
+  "model": "logistica.tipoalambre",
+  "pk": 5,
+  "fields": {
+    "codigo": "AL-72154",
+    "nombre": "Alambre Recocido para Amarre",
+    "peso_estandar_kg": "50.00",
+    "ubicacion_defecto": "Bodega Central - Bahía B",
+    "activo": true,
+    "fecha_creacion": "2026-10-27T07:54:17.202Z"
+  }
+},
+{
+  "model": "logistica.tipoalambre",
+  "pk": 6,
+  "fields": {
+    "codigo": "AL-72155",
+    "nombre": "Alambre de Acero Estructural",
+    "peso_estandar_kg": "100.00",
+    "ubicacion_defecto": "Bodega Central - Bahía D",
+    "activo": true,
+    "fecha_creacion": "2026-10-27T07:54:17.204Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 1,
+  "fields": {
+    "codigo_rollo": "AL-1001",
+    "tipo_alambre": "Alambre Galvanizado Calibre 12",
+    "peso_kg": "50.00",
+    "ubicacion": "Bodega Central - Bahía A",
+    "estado": "Entregado",
+    "viaje": 8,
+    "fecha_ingreso": "2026-10-10T10:00:28.889Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 2,
+  "fields": {
+    "codigo_rollo": "AL-1002",
+    "tipo_alambre": "Alambre Recocido Calibre 16",
+    "peso_kg": "45.00",
+    "ubicacion": "Bodega Central - Bahía B",
+    "estado": "Entregado",
+    "viaje": 8,
+    "fecha_ingreso": "2026-10-10T10:00:28.895Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 3,
+  "fields": {
+    "codigo_rollo": "AL-1003",
+    "tipo_alambre": "Alambre de Púas 400m",
+    "peso_kg": "35.00",
+    "ubicacion": "Nave 2 - Rampa Este",
+    "estado": "Entregado",
+    "viaje": 8,
+    "fecha_ingreso": "2026-10-10T10:00:28.903Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 4,
+  "fields": {
+    "codigo_rollo": "AL-1004",
+    "tipo_alambre": "Alambre Alta Tensión 2.2mm",
+    "peso_kg": "60.00",
+    "ubicacion": "Patio Cargas - Bloque 1",
+    "estado": "Entregado",
+    "viaje": 8,
+    "fecha_ingreso": "2026-10-10T10:00:28.909Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 5,
+  "fields": {
+    "codigo_rollo": "AL-1005",
+    "tipo_alambre": "Alambre Galvanizado Calibre 12",
+    "peso_kg": "50.00",
+    "ubicacion": "Bodega Central - Bahía A",
+    "estado": "Entregado",
+    "viaje": 8,
+    "fecha_ingreso": "2026-10-10T10:00:28.917Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 6,
+  "fields": {
+    "codigo_rollo": "AL-1006",
+    "tipo_alambre": "Alambre Recocido Calibre 16",
+    "peso_kg": "45.00",
+    "ubicacion": "Bodega Central - Bahía B",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.924Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 7,
+  "fields": {
+    "codigo_rollo": "AL-1007",
+    "tipo_alambre": "Alambre de Púas 400m",
+    "peso_kg": "35.00",
+    "ubicacion": "Nave 2 - Rampa Este",
+    "estado": "Entregado",
+    "viaje": 9,
+    "fecha_ingreso": "2026-10-10T10:00:28.931Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 8,
+  "fields": {
+    "codigo_rollo": "AL-1008",
+    "tipo_alambre": "Alambre Alta Tensión 2.2mm",
+    "peso_kg": "60.00",
+    "ubicacion": "Patio Cargas - Bloque 1",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.937Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 9,
+  "fields": {
+    "codigo_rollo": "AL-1009",
+    "tipo_alambre": "Alambre Galvanizado Calibre 12",
+    "peso_kg": "50.00",
+    "ubicacion": "Bodega Central - Bahía A",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.943Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 10,
+  "fields": {
+    "codigo_rollo": "AL-1010",
+    "tipo_alambre": "Alambre Recocido Calibre 16",
+    "peso_kg": "45.00",
+    "ubicacion": "Bodega Central - Bahía B",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.951Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 11,
+  "fields": {
+    "codigo_rollo": "AL-1011",
+    "tipo_alambre": "Alambre de Púas 400m",
+    "peso_kg": "35.00",
+    "ubicacion": "Nave 2 - Rampa Este",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.957Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 12,
+  "fields": {
+    "codigo_rollo": "AL-1012",
+    "tipo_alambre": "Alambre Alta Tensión 2.2mm",
+    "peso_kg": "60.00",
+    "ubicacion": "Patio Cargas - Bloque 1",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.963Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 13,
+  "fields": {
+    "codigo_rollo": "AL-1013",
+    "tipo_alambre": "Alambre Galvanizado Calibre 12",
+    "peso_kg": "50.00",
+    "ubicacion": "Bodega Central - Bahía A",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.971Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 14,
+  "fields": {
+    "codigo_rollo": "AL-1014",
+    "tipo_alambre": "Alambre Recocido Calibre 16",
+    "peso_kg": "45.00",
+    "ubicacion": "Bodega Central - Bahía B",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.979Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 15,
+  "fields": {
+    "codigo_rollo": "AL-1015",
+    "tipo_alambre": "Alambre de Púas 400m",
+    "peso_kg": "35.00",
+    "ubicacion": "Nave 2 - Rampa Este",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.990Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 16,
+  "fields": {
+    "codigo_rollo": "AL-1016",
+    "tipo_alambre": "Alambre Alta Tensión 2.2mm",
+    "peso_kg": "60.00",
+    "ubicacion": "Patio Cargas - Bloque 1",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:28.998Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 17,
+  "fields": {
+    "codigo_rollo": "AL-1017",
+    "tipo_alambre": "Alambre Galvanizado Calibre 12",
+    "peso_kg": "50.00",
+    "ubicacion": "Bodega Central - Bahía A",
+    "estado": "En Viaje",
+    "viaje": 10,
+    "fecha_ingreso": "2026-10-10T10:00:29.006Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 18,
+  "fields": {
+    "codigo_rollo": "AL-1018",
+    "tipo_alambre": "Alambre Recocido Calibre 16",
+    "peso_kg": "45.00",
+    "ubicacion": "Bodega Central - Bahía B",
+    "estado": "En Viaje",
+    "viaje": 10,
+    "fecha_ingreso": "2026-10-10T10:00:29.013Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 19,
+  "fields": {
+    "codigo_rollo": "AL-1019",
+    "tipo_alambre": "Alambre de Púas 400m",
+    "peso_kg": "35.00",
+    "ubicacion": "Nave 2 - Rampa Este",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:29.020Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 20,
+  "fields": {
+    "codigo_rollo": "AL-1020",
+    "tipo_alambre": "Alambre Alta Tensión 2.2mm",
+    "peso_kg": "60.00",
+    "ubicacion": "Patio Cargas - Bloque 1",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:29.025Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 21,
+  "fields": {
+    "codigo_rollo": "AL-1021",
+    "tipo_alambre": "Alambre Galvanizado Calibre 12",
+    "peso_kg": "50.00",
+    "ubicacion": "Bodega Central - Bahía A",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:29.031Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 22,
+  "fields": {
+    "codigo_rollo": "AL-1022",
+    "tipo_alambre": "Alambre Recocido Calibre 16",
+    "peso_kg": "45.00",
+    "ubicacion": "Bodega Central - Bahía B",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:29.038Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 23,
+  "fields": {
+    "codigo_rollo": "AL-1023",
+    "tipo_alambre": "Alambre de Púas 400m",
+    "peso_kg": "35.00",
+    "ubicacion": "Nave 2 - Rampa Este",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:29.044Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 24,
+  "fields": {
+    "codigo_rollo": "AL-1024",
+    "tipo_alambre": "Alambre Alta Tensión 2.2mm",
+    "peso_kg": "60.00",
+    "ubicacion": "Patio Cargas - Bloque 1",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:29.050Z"
+  }
+},
+{
+  "model": "logistica.rollo",
+  "pk": 25,
+  "fields": {
+    "codigo_rollo": "AL-1025",
+    "tipo_alambre": "Alambre Galvanizado Calibre 12",
+    "peso_kg": "50.00",
+    "ubicacion": "Bodega Central - Bahía A",
+    "estado": "Disponible",
+    "viaje": null,
+    "fecha_ingreso": "2026-10-10T10:00:29.056Z"
+  }
+}
+]

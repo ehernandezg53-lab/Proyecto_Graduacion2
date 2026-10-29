@@ -386,18 +386,11 @@ export const BodegaModule = ({ activeSubTab: externalSubTab, setActiveSubTab: ex
             </>
           )}
 
-          {activeSubTab === 'ingresos' && (
-            isAdmin ? (
-              <button className="btn-primary" onClick={handleOpenNewIngresoModal}>
-                <ArrowDownRight size={15} />
-                <span>Generar Orden de Ingreso</span>
-              </button>
-            ) : (
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'var(--bg-element)', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                <Building size={14} style={{ color: 'var(--yellow)' }} />
-                <span>Generación de Orden de Ingreso reservada al Administrador. El Bodeguero efectúa el ingreso físico a bodega.</span>
-              </div>
-            )
+          {activeSubTab === 'ingresos' && isAdmin && (
+            <button className="btn-primary" onClick={handleOpenNewIngresoModal}>
+              <ArrowDownRight size={15} />
+              <span>Generar Orden de Ingreso</span>
+            </button>
           )}
 
           {activeSubTab === 'salidas' && (
