@@ -47,7 +47,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const refreshToken = sessionStorage.getItem('refresh_token');
+    if (refreshToken) {
+      try {
+        await api.post('/auth/logout/', { refresh_token: refreshToken });
+      } catch (err) {
+        console.warn('Revocación remota de sesión:', err.response?.data || err.message);
+      }
+    }
     sessionStorage.removeItem('access_token');
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('user_info');

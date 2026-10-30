@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     CustomTokenObtainPairView,
+    logout_view,
     current_user_view,
     RolViewSet,
     UsuarioViewSet,
@@ -18,6 +19,7 @@ router.register(r'solicitudes_restablecimiento', SolicitudRestablecimientoViewSe
 
 urlpatterns = [
     path('auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/logout/', logout_view, name='token_logout'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/me/', current_user_view, name='current_user'),
     path('auth/solicitar_restablecimiento/', solicitar_restablecimiento_view, name='solicitar_restablecimiento'),

@@ -5,7 +5,10 @@ from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.db.models import Q
 
 from .models import Usuario, Rol, Permiso, RolPermiso, SolicitudRestablecimiento
@@ -16,8 +19,50 @@ from .serializers import (
     SolicitudRestablecimientoSerializer
 )
 
+class LoginRateThrottle(AnonRateThrottle):
+    """
+    Control de tasa para mitigar ataques de fuerza bruta en login (OWASP A07 / ISO A.5.17).
+    Restringe a un máximo de 5 intentos por minuto por dirección IP.
+    """
+    scope = 'login'
+    rate = '5/minute'
+
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+    throttle_classes = [LoginRateThrottle]
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def logout_view(request):
+    """
+    Revoca formalmente el refresh_token de sesión colocándolo en la lista negra (Blacklist)
+    en cumplimiento con el Control A.5.15 de ISO/IEC 27001 y OWASP A07:2025.
+    """
+    refresh_token = request.data.get('refresh_token')
+    if not refresh_token:
+        return Response(
+            {"detail": "El refresh_token es requerido para revocar la sesión."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response(
+            {"detail": "Sesión cerrada y token revocado en lista negra exitosamente."},
+            status=status.HTTP_200_OK
+        )
+    except TokenError:
+        return Response(
+            {"detail": "El token ya ha sido revocado o no es válido."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {"detail": f"Error al procesar la revocación: {str(e)}"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(['GET'])
