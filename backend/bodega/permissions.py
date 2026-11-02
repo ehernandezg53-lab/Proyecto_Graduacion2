@@ -2,8 +2,7 @@ from rest_framework import permissions
 
 class IsBodegueroOrAdmin(permissions.BasePermission):
     """
-    Permite acceso únicamente a usuarios autenticados con rol Administrador o Bodeguero,
-    o con permiso 'ver_bodega'.
+    Permite acceso únicamente a usuarios autenticados con rol Administrador o Bodeguero
     """
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
@@ -44,8 +43,7 @@ class IsTallerOrBodegueroOrAdmin(permissions.BasePermission):
 
 class IsTallerOrAdmin(permissions.BasePermission):
     """
-    Permite acceso únicamente a usuarios autenticados con rol Administrador o Taller,
-    o con permiso 'ver_taller'.
+    Permite acceso únicamente a usuarios autenticados con rol Administrador o Taller
     """
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:

@@ -12,7 +12,7 @@ SENSITIVE_KEYS = {
 
 def enmascarar_datos(data):
     """
-    Enmascara recursivamente cualquier dato confidencial (ISO/IEC 27001 / ISO/IEC 27701).
+    Enmascara recursivamente cualquier dato confidencial
     """
     if isinstance(data, dict):
         return {
@@ -26,8 +26,7 @@ def enmascarar_datos(data):
 
 class BitacoraMiddleware(MiddlewareMixin):
     """
-    Middleware no intrusivo de bitácora y trazabilidad para el estándar ISO/IEC 27001 (A.8.15).
-    Intercepta silenciosamente todas las transacciones de modificación e intentos de autenticación.
+    Middleware no intrusivo de bitácora y trazabilidad.
     """
     def __init__(self, get_response=None):
         super().__init__(get_response)

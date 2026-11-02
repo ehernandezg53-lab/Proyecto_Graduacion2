@@ -29,7 +29,7 @@ class VehiculoViewSet(viewsets.ModelViewSet):
 
 class MecanicoViewSet(viewsets.ModelViewSet):
     """
-    ViewSet para la gestión de mecánicos de taller y sus áreas de especialidad.
+    Vista para la gestión de mecánicos de taller y sus áreas de especialidad.
     Permite acceso a los roles Taller y Administrador.
     """
     queryset = Mecanico.objects.filter(activo=True).order_by('nombre')

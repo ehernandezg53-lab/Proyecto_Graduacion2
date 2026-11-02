@@ -240,8 +240,6 @@ class RolloViewSet(viewsets.ModelViewSet):
     def ingreso_existente(self, request):
         """
         Ingreso a bodega de rollos a partir de un código de alambre pre-registrado.
-        Toma el código existente del alambre, autocompleta el tipo y peso estándar,
-        y genera los rollos disponibles en la ubicación indicada.
         """
         codigo_alambre = request.data.get('codigo_alambre')
         if not codigo_alambre:
@@ -293,7 +291,7 @@ class RolloViewSet(viewsets.ModelViewSet):
 
 class TipoAlambreViewSet(viewsets.ModelViewSet):
     """
-    Catálogo de tipos de alambre pre-registrados para control de inventario y rollos.
+    Catálogo de tipos de alambre para control de inventario y rollos.
     """
     queryset = TipoAlambre.objects.filter(activo=True).order_by('codigo')
     serializer_class = TipoAlambreSerializer

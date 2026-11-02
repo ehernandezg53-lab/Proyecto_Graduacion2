@@ -3,8 +3,7 @@ from django.conf import settings
 
 class RegistroBitacora(models.Model):
     """
-    Bitácora Inmutable según estándares ISO/IEC 27001:2022 (Control A.8.15 y A.8.33)
-    e ISO/IEC 25010 (No repudio y Trazabilidad).
+    Bitácora
     """
     ACCIONES_CHOICES = [
         ('LOGIN_EXITOSO', 'Inicio de Sesión Exitoso'),

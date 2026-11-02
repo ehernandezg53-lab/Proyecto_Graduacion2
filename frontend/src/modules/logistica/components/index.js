@@ -1,0 +1,13 @@
+export { ModalDetalleViaje } from './ModalDetalleViaje';
+export { ModalProgramarViaje } from './ModalProgramarViaje';
+export { ModalCliente } from './ModalCliente';
+export { ModalConductor } from './ModalConductor';
+export { ModalVehiculo } from './ModalVehiculo';
+export { ModalNuevoCodigoRollo } from './ModalNuevoCodigoRollo';
+export { ModalIngresoRollos } from './ModalIngresoRollos';
+export { HeaderLogistica } from './HeaderLogistica';
+export { TabViajes } from './TabViajes';
+export { TabClientes } from './TabClientes';
+export { TabConductores } from './TabConductores';
+export { TabVehiculos } from './TabVehiculos';
+export { TabRollos } from './TabRollos';

@@ -13,9 +13,35 @@ const MainLayout = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('users');
   const [activeSubTab, setActiveSubTab] = useState('usuarios');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
+  const closeSidebar = () => setIsSidebarOpen(false);
+
+  // Cerrar sidebar al presionar Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Bloquear scroll de fondo en móviles cuando el menú lateral está desplegado
+  useEffect(() => {
+    if (isSidebarOpen) {
+      document.body.classList.add('sidebar-open-locked');
+    } else {
+      document.body.classList.remove('sidebar-open-locked');
+    }
+    return () => document.body.classList.remove('sidebar-open-locked');
+  }, [isSidebarOpen]);
 
   const handleSelectModule = (tab, subTab = null) => {
     setActiveTab(tab);
+    closeSidebar();
     if (subTab) {
       setActiveSubTab(subTab);
     } else {
@@ -102,10 +128,15 @@ const MainLayout = () => {
         activeTab={activeTab}
         activeSubTab={activeSubTab}
         onSelectModule={handleSelectModule}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => { setActiveTab(tab); closeSidebar(); }}
+        isSidebarOpen={isSidebarOpen}
+        closeSidebar={closeSidebar}
       />
       <div className="main-content">
-        <Navbar />
+        <Navbar
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
         <main className="content-body">
           {renderContent()}
         </main>

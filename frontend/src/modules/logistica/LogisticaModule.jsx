@@ -3,32 +3,23 @@ import api from '@/services/api';
 import { logisticaService } from '@/services/logisticaService';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/useToast';
-import CustomSelect from '@/components/common/CustomSelect';
+import { CustomSelect, ConfirmDialog, ToastNotification } from '@/components/common';
 import {
-  Navigation,
-  PlusCircle,
-  Search,
-  RefreshCw,
-  Eye,
-  X,
-  ShieldAlert,
-  Users,
-  Building,
-  Calendar,
-  Clock,
-  Truck,
-  CheckCircle2,
-  Trash2,
-  Edit,
-  Save,
-  PackageCheck,
-  Layers,
-  Boxes,
-  CheckSquare,
-  Square,
-  AlertCircle,
-  Download
-} from 'lucide-react';
+  ModalDetalleViaje,
+  ModalProgramarViaje,
+  ModalCliente,
+  ModalConductor,
+  ModalVehiculo,
+  ModalNuevoCodigoRollo,
+  ModalIngresoRollos,
+  HeaderLogistica,
+  TabViajes,
+  TabClientes,
+  TabConductores,
+  TabVehiculos,
+  TabRollos
+} from './components';
+import { ShieldAlert } from 'lucide-react';
 
 const DEFAULT_TIPOS_ALAMBRE = [
   { id_tipo: 1, codigo: 'AL-72150', nombre: 'Alambre Galvanizado Calibre 12', peso_estandar_kg: 50.00, ubicacion_defecto: 'Bodega Central - Bahía A' },
@@ -630,12 +621,33 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
       showToast('warning', "El nombre del conductor es obligatorio.");
       return;
     }
+
+    const carnetTrim = conductorForm.codigo_carnet?.trim();
+    if (carnetTrim) {
+      if (!/^\d{6}$/.test(carnetTrim)) {
+        showToast('warning', "El código de carnet debe contener exactamente 6 dígitos numéricos.");
+        return;
+      }
+      const yaExiste = conductores.some(c => 
+        String(c.codigo_carnet).trim() === carnetTrim && 
+        String(c.id_conductor) !== String(editingConductorId)
+      );
+      if (yaExiste) {
+        showToast('warning', "Este código de carnet ya se encuentra registrado para otro conductor.");
+        return;
+      }
+    }
+
     try {
+      const payload = {
+        ...conductorForm,
+        codigo_carnet: carnetTrim || null
+      };
       if (editingConductorId) {
-        await api.put(`/logistica/conductores/${editingConductorId}/`, conductorForm);
+        await api.put(`/logistica/conductores/${editingConductorId}/`, payload);
         showToast('success', "Conductor actualizado correctamente.");
       } else {
-        await api.post('/logistica/conductores/', conductorForm);
+        await api.post('/logistica/conductores/', payload);
         showToast('success', "Conductor registrado correctamente.");
       }
       setIsNewConductorModalOpen(false);
@@ -644,7 +656,10 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
       await fetchConductores();
     } catch (err) {
       console.error("Error al guardar conductor:", err);
-      showToast('error', "No se pudo guardar el registro del conductor.");
+      const errMsg = err.response?.data?.codigo_carnet?.[0] ||
+                     err.response?.data?.detail ||
+                     "No se pudo guardar el registro del conductor.";
+      showToast('error', errMsg);
     }
   };
 
@@ -711,1618 +726,163 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
-      {/* Encabezado Principal */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
-            <Navigation size={28} style={{ color: 'var(--blue)' }} />
-            Módulo de Logística y Control de Viajes
-          </h1>
-        </div>
-
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          {activeSubTab === 'viajes' && (
-            <>
-              <button
-                className="btn-secondary"
-                onClick={handleOpenSelectedViajeDetail}
-                disabled={!selectedViajeId}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  opacity: selectedViajeId ? 1 : 0.5,
-                  cursor: selectedViajeId ? 'pointer' : 'not-allowed'
-                }}
-              >
-                <Eye size={16} />
-                Más Información
-              </button>
-              <button
-                className="btn-primary"
-                onClick={handleOpenNewViajeModal}
-                style={{ width: 'auto', padding: '0.55rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-              >
-                <PlusCircle size={18} />
-                Programar Nuevo Viaje
-              </button>
-            </>
-          )}
-
-          {activeSubTab === 'clientes' && (
-            <button
-              className="btn-primary"
-              onClick={handleOpenNewClienteModal}
-              style={{ width: 'auto', padding: '0.55rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <PlusCircle size={18} />
-              Nuevo Cliente
-            </button>
-          )}
-
-          {activeSubTab === 'conductores' && (
-            <button
-              className="btn-primary"
-              onClick={handleOpenNewConductorModal}
-              style={{ width: 'auto', padding: '0.55rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <PlusCircle size={18} />
-              Nuevo Conductor
-            </button>
-          )}
-
-          {activeSubTab === 'vehiculos' && (
-            <button
-              className="btn-primary"
-              onClick={handleOpenNewVehiculoModal}
-              style={{ width: 'auto', padding: '0.55rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <PlusCircle size={18} />
-              Nuevo Vehículo
-            </button>
-          )}
-
-          {activeSubTab === 'rollos' && (
-            <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button
-                className="btn-primary"
-                onClick={handleOpenIngresoRolloModal}
-                style={{ width: 'auto', padding: '0.55rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--blue)' }}
-                title="Ingresar rollos a bodega seleccionando un código de alambre pre-registrado existente"
-              >
-                <Download size={18} />
-                Ingreso de Rollos
-              </button>
-              <button
-                className="btn-action"
-                onClick={handleOpenNewRolloModal}
-                style={{ width: 'auto', padding: '0.55rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                title="Registrar nuevos rollos con nuevo código correlativo"
-              >
-                <PlusCircle size={18} />
-                Registrar Rollos
-              </button>
-            </div>
-          )}
-
-          <button
-            className="btn-secondary"
-            onClick={loadTabData}
-            title="Recargar Datos"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <RefreshCw size={18} className={loading ? 'spin' : ''} />
-          </button>
-        </div>
-      </div>
+      {/* Encabezado Principal y Acciones */}
+      <HeaderLogistica
+        activeSubTab={activeSubTab}
+        selectedViajeId={selectedViajeId}
+        loading={loading}
+        onOpenViajeDetail={handleOpenSelectedViajeDetail}
+        onOpenNewViaje={handleOpenNewViajeModal}
+        onOpenNewCliente={handleOpenNewClienteModal}
+        onOpenNewConductor={handleOpenNewConductorModal}
+        onOpenNewVehiculo={handleOpenNewVehiculoModal}
+        onOpenIngresoRollo={handleOpenIngresoRolloModal}
+        onOpenNewRollo={handleOpenNewRolloModal}
+        onReload={loadTabData}
+      />
 
       {/* PESTAÑA 1: GESTIÓN DE VIAJES */}
       {activeSubTab === 'viajes' && (
-        <>
-          {/* Barra Superior de Filtros por Rango de Fechas */}
-          <div className="card" style={{ padding: '0.85rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <label className="form-label" style={{ margin: 0, fontWeight: 700, fontSize: '0.82rem' }}>Prog desde:</label>
-                <input
-                  type="date"
-                  className="form-input"
-                  style={{ width: '150px', padding: '0.35rem 0.6rem', fontSize: '0.82rem' }}
-                  value={progDesde}
-                  onChange={(e) => setProgDesde(e.target.value)}
-                />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <label className="form-label" style={{ margin: 0, fontWeight: 700, fontSize: '0.82rem' }}>Hasta:</label>
-                <input
-                  type="date"
-                  className="form-input"
-                  style={{ width: '150px', padding: '0.35rem 0.6rem', fontSize: '0.82rem' }}
-                  value={hasta}
-                  onChange={(e) => setHasta(e.target.value)}
-                />
-              </div>
-
-              {(progDesde || hasta) && (
-                <button
-                  className="btn-secondary"
-                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem' }}
-                  onClick={() => { setProgDesde(''); setHasta(''); }}
-                >
-                  Limpiar Fechas
-                </button>
-              )}
-            </div>
-
-            <div className="input-container" style={{ width: '280px' }}>
-              <Search className="input-icon" size={15} />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Buscar por N° viaje, cliente..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Tabla Estructurada de Viajes */}
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                <thead>
-                  <tr style={{ backgroundColor: 'var(--bg-element)', borderBottom: '1px solid var(--border)' }}>
-                    <th style={{ width: '40px', textAlign: 'center', padding: '0.75rem' }}>✓</th>
-                    <th style={{ padding: '0.75rem' }}>N° Viaje</th>
-                    <th style={{ padding: '0.75rem' }}>Unidad</th>
-                    <th style={{ padding: '0.75rem' }}>Conductor</th>
-                    <th style={{ padding: '0.75rem' }}>N° de Cliente</th>
-                    <th style={{ padding: '0.75rem' }}>Nombre del Cliente</th>
-                    <th style={{ padding: '0.75rem' }}>Dirección Destino</th>
-                    <th style={{ padding: '0.75rem' }}>Fecha Programada</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                        Cargando consulta de viajes...
-                      </td>
-                    </tr>
-                  ) : viajes.length === 0 ? (
-                    <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                        No se encontraron registros de viajes en el rango seleccionado.
-                      </td>
-                    </tr>
-                  ) : (
-                    viajes.map((v) => {
-                      const isSelected = selectedViajeId === v.id_viaje;
-                      return (
-                        <tr
-                          key={v.id_viaje}
-                          style={{
-                            backgroundColor: isSelected ? '#eff6ff' : 'transparent',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid var(--border)'
-                          }}
-                          onClick={() => setSelectedViajeId(isSelected ? null : v.id_viaje)}
-                        >
-                          <td style={{ textAlign: 'center', padding: '0.75rem' }}>
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => setSelectedViajeId(isSelected ? null : v.id_viaje)}
-                              onClick={(e) => e.stopPropagation()}
-                              style={{ cursor: 'pointer' }}
-                            />
-                          </td>
-                          <td style={{ fontWeight: 700, color: 'var(--yellow)', padding: '0.75rem' }}>
-                            #{v.numero_viaje}
-                          </td>
-                          <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>
-                            {v.vehiculo_detail ? `${v.vehiculo_detail.placa} (${v.vehiculo_detail.unidad || v.vehiculo_detail.modelo || 'Unidad'})` : 'Sin unidad'}
-                          </td>
-                          <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>
-                            {v.conductor_detail ? v.conductor_detail.nombre : <span style={{ color: 'var(--text-muted)' }}>Sin conductor</span>}
-                          </td>
-                          <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>
-                            {v.cliente_detail?.numero_cliente || 'N/A'}
-                          </td>
-                          <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>
-                            {v.cliente_detail?.nombre || 'Cliente sin nombre'}
-                          </td>
-                          <td style={{ color: 'var(--text-muted)', fontSize: '0.825rem', padding: '0.75rem' }}>
-                            {v.cliente_detail?.direccion || '—'}
-                          </td>
-                          <td style={{ color: 'var(--text-muted)', padding: '0.75rem' }}>
-                            {v.fecha_envio ? new Date(v.fecha_envio + 'T00:00:00').toLocaleDateString() : '—'}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
+        <TabViajes
+          progDesde={progDesde}
+          setProgDesde={setProgDesde}
+          hasta={hasta}
+          setHasta={setHasta}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          loading={loading}
+          viajes={viajes}
+          selectedViajeId={selectedViajeId}
+          setSelectedViajeId={setSelectedViajeId}
+        />
       )}
 
       {/* PESTAÑA 2: CATÁLOGO DE CLIENTES */}
       {activeSubTab === 'clientes' && (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '0.85rem 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--white)' }}>Catálogo General de Clientes</h3>
-            <div className="input-container" style={{ width: '320px' }}>
-              <Search className="input-icon" size={15} />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Buscar por número o nombre de cliente..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--bg-element)', borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '0.75rem' }}>Número de Cliente</th>
-                  <th style={{ padding: '0.75rem' }}>Nombre / Empresa</th>
-                  <th style={{ padding: '0.75rem' }}>Dirección Pre-establecida</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'center' }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      Cargando catálogo de clientes...
-                    </td>
-                  </tr>
-                ) : clientes.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      No hay clientes registrados en el sistema.
-                    </td>
-                  </tr>
-                ) : (
-                  clientes.map((c) => (
-                    <tr key={c.id_cliente} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ fontWeight: 700, color: 'var(--yellow)', padding: '0.75rem' }}>
-                        {c.numero_cliente}
-                      </td>
-                      <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>
-                        {c.nombre}
-                      </td>
-                      <td style={{ color: 'var(--text-muted)', padding: '0.75rem' }}>
-                        {c.direccion || 'Sin dirección registrada'}
-                      </td>
-                      <td style={{ textAlign: 'center', padding: '0.75rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.4rem' }}>
-                          <button
-                            className="btn-secondary"
-                            style={{ padding: '0.3rem 0.5rem' }}
-                            onClick={() => handleEditCliente(c)}
-                            title="Editar Cliente"
-                          >
-                            <Edit size={14} />
-                          </button>
-                          <button
-                            className="btn-secondary"
-                            style={{ padding: '0.3rem 0.5rem', color: 'var(--danger)' }}
-                            onClick={() => handleDeleteCliente(c.id_cliente)}
-                            title="Eliminar Cliente"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TabClientes
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          loading={loading}
+          clientes={clientes}
+          onEditCliente={handleEditCliente}
+          onDeleteCliente={handleDeleteCliente}
+        />
       )}
 
       {/* PESTAÑA 3: CONDUCTORES / PILOTOS */}
       {activeSubTab === 'conductores' && (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '0.85rem 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--white)' }}>Lista de Conductores y Caducidad de Licencias</h3>
-            <div className="input-container" style={{ width: '360px' }}>
-              <Search className="input-icon" size={15} />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Buscar conductor por nombre o código de carnet..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--bg-element)', borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '0.75rem' }}>ID</th>
-                  <th style={{ padding: '0.75rem' }}>Código de Carnet</th>
-                  <th style={{ padding: '0.75rem' }}>Nombre Completo del Conductor</th>
-                  <th style={{ padding: '0.75rem' }}>Caducidad del Número de Licencia</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'center' }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      Cargando lista de conductores...
-                    </td>
-                  </tr>
-                ) : conductores.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      No hay conductores registrados.
-                    </td>
-                  </tr>
-                ) : (
-                  conductores.map((cond) => (
-                    <tr key={cond.id_conductor} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ color: 'var(--text-muted)', padding: '0.75rem' }}>#{cond.id_conductor}</td>
-                      <td style={{ fontWeight: 700, color: 'var(--yellow)', padding: '0.75rem' }}>
-                        {cond.codigo_carnet || '—'}
-                      </td>
-                      <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>{cond.nombre}</td>
-                      <td style={{ color: 'var(--text-muted)', padding: '0.75rem' }}>
-                        {cond.fecha_vencimiento_licencia ? new Date(cond.fecha_vencimiento_licencia + 'T00:00:00').toLocaleDateString() : '—'}
-                      </td>
-                      <td style={{ textAlign: 'center', padding: '0.75rem' }}>
-                        <button
-                          className="btn-primary"
-                          style={{ width: 'auto', padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                          onClick={() => handleEditConductor(cond)}
-                        >
-                          <Edit size={13} /> Editar
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TabConductores
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          loading={loading}
+          conductores={conductores}
+          onEditConductor={handleEditConductor}
+        />
       )}
 
       {/* PESTAÑA 4: VEHÍCULOS / CAMIONES */}
       {activeSubTab === 'vehiculos' && (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '0.85rem 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--white)' }}>Catálogo de Vehículos (Camiones)</h3>
-            <div className="input-container" style={{ width: '320px' }}>
-              <Search className="input-icon" size={15} />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Buscar por unidad o placa..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--bg-element)', borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '0.75rem' }}>ID</th>
-                  <th style={{ padding: '0.75rem' }}>Unidad</th>
-                  <th style={{ padding: '0.75rem' }}>Placa</th>
-                  <th style={{ padding: '0.75rem' }}>Estado</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'center' }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      Cargando catálogo de vehículos...
-                    </td>
-                  </tr>
-                ) : vehiculos.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      No hay vehículos registrados en el sistema.
-                    </td>
-                  </tr>
-                ) : (
-                  vehiculos.map((v) => (
-                    <tr key={v.id_vehiculo} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ color: 'var(--text-muted)', padding: '0.75rem' }}>#{v.id_vehiculo}</td>
-                      <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>
-                        {v.unidad || v.modelo || 'Sin unidad especificada'}
-                      </td>
-                      <td style={{ fontWeight: 700, color: 'var(--yellow)', padding: '0.75rem' }}>
-                        {v.placa}
-                      </td>
-                      <td style={{ padding: '0.75rem' }}>
-                        {v.activo !== false ? (
-                          <span style={{ backgroundColor: '#dcfce7', color: '#15803d', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.78rem', fontWeight: 600 }}>
-                            Activo
-                          </span>
-                        ) : (
-                          <span style={{ backgroundColor: '#fee2e2', color: '#b91c1c', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.78rem', fontWeight: 600 }}>
-                            Inactivo
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ textAlign: 'center', padding: '0.75rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.4rem' }}>
-                          <button
-                            className="btn-secondary"
-                            style={{ padding: '0.3rem 0.5rem' }}
-                            onClick={() => handleEditVehiculo(v)}
-                            title="Editar Vehículo"
-                          >
-                            <Edit size={14} />
-                          </button>
-                          <button
-                            className="btn-secondary"
-                            style={{ padding: '0.3rem 0.5rem', color: 'var(--danger)' }}
-                            onClick={() => handleDeleteVehiculo(v.id_vehiculo)}
-                            title="Eliminar Vehículo"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <TabVehiculos
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          loading={loading}
+          vehiculos={vehiculos}
+          onEditVehiculo={handleEditVehiculo}
+          onDeleteVehiculo={handleDeleteVehiculo}
+        />
       )}
 
       {/* PESTAÑA 5: CONTROL DE ROLLOS DE ALAMBRE */}
       {activeSubTab === 'rollos' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {/* Tabla de Inventario de Rollos */}
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '0.85rem 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--white)', margin: 0 }}>
-                  Inventario y Trazabilidad de Rollos de Alambre
-                </h3>
-                {/* Selector de filtro por estado */}
-                <div style={{ display: 'flex', gap: '0.35rem' }}>
-                  {['Todos', 'Disponible', 'En Viaje', 'Entregado'].map((est) => (
-                    <button
-                      key={est}
-                      onClick={() => setRolloFilterEstado(est)}
-                      style={{
-                        padding: '0.25rem 0.65rem',
-                        borderRadius: '14px',
-                        border: rolloFilterEstado === est ? '1px solid #bfdbfe' : '1px solid var(--border)',
-                        backgroundColor: rolloFilterEstado === est ? '#1e40af' : 'transparent',
-                        color: rolloFilterEstado === est ? '#ffffff' : 'var(--text-muted)',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      {est}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div className="input-container" style={{ width: '280px' }}>
-                  <Search className="input-icon" size={15} />
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Buscar por código o tipo..."
-                    value={rolloSearch}
-                    onChange={(e) => setRolloSearch(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div style={{ overflowX: 'auto' }}>
-              <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                <thead>
-                  <tr style={{ backgroundColor: 'var(--bg-element)', borderBottom: '1px solid var(--border)' }}>
-                    <th style={{ padding: '0.75rem' }}>Código Rollo</th>
-                    <th style={{ padding: '0.75rem' }}>Tipo de Alambre</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'right' }}>Peso (kg)</th>
-                    <th style={{ padding: '0.75rem' }}>Ubicación en Bodega</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'center' }}>Estado</th>
-                    <th style={{ padding: '0.75rem' }}>Viaje Asignado / Destino</th>
-                    <th style={{ padding: '0.75rem' }}>Fecha de Ingreso</th>
-                    <th style={{ padding: '0.75rem', textAlign: 'center' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                        Cargando inventario de rollos...
-                      </td>
-                    </tr>
-                  ) : rollos.length === 0 ? (
-                    <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                          <Boxes size={32} style={{ color: 'var(--text-muted)', opacity: 0.6 }} />
-                          <span>No se encontraron rollos de alambre en este criterio de búsqueda.</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    rollos.map((r) => {
-                      let badgeStyle = { backgroundColor: '#dcfce7', color: '#15803d' };
-                      if (r.estado === 'En Viaje') badgeStyle = { backgroundColor: '#fef3c7', color: '#b45309' };
-                      else if (r.estado === 'Entregado') badgeStyle = { backgroundColor: '#dbeafe', color: '#1e40af' };
-
-                      return (
-                        <tr key={r.id_rollo} style={{ borderBottom: '1px solid var(--border)' }}>
-                          <td style={{ fontWeight: 700, color: 'var(--yellow)', padding: '0.75rem' }}>
-                            {r.codigo_rollo}
-                          </td>
-                          <td style={{ fontWeight: 600, color: 'var(--white)', padding: '0.75rem' }}>
-                            {r.tipo_alambre}
-                          </td>
-                          <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--white)', padding: '0.75rem' }}>
-                            {Number(r.peso_kg || 0).toFixed(2)} kg
-                          </td>
-                          <td style={{ color: 'var(--text-muted)', padding: '0.75rem' }}>
-                            {r.ubicacion || 'Bodega Central'}
-                          </td>
-                          <td style={{ textAlign: 'center', padding: '0.75rem' }}>
-                            <span style={{ ...badgeStyle, padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.78rem', fontWeight: 700 }}>
-                              {r.estado}
-                            </span>
-                          </td>
-                          <td style={{ padding: '0.75rem' }}>
-                            {r.viaje_numero ? (
-                              <div>
-                                <span style={{ fontWeight: 700, color: 'var(--blue)' }}>Viaje #{r.viaje_numero}</span>
-                                {r.cliente_nombre && (
-                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                    Cliente: {r.cliente_nombre}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                                En Bodega (Sin Asignar)
-                              </span>
-                            )}
-                          </td>
-                          <td style={{ color: 'var(--text-muted)', padding: '0.75rem', fontSize: '0.82rem' }}>
-                            {r.fecha_ingreso ? new Date(r.fecha_ingreso).toLocaleDateString() : '—'}
-                          </td>
-                          <td style={{ textAlign: 'center', padding: '0.75rem' }}>
-                            {r.estado === 'Disponible' ? (
-                              <button
-                                className="btn-secondary"
-                                style={{ padding: '0.3rem 0.5rem', color: 'var(--danger)' }}
-                                onClick={() => handleDeleteRollo(r.id_rollo, r.codigo_rollo)}
-                                title="Eliminar Rollo del Inventario"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            ) : (
-                              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Bloqueado</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <TabRollos
+          rolloFilterEstado={rolloFilterEstado}
+          setRolloFilterEstado={setRolloFilterEstado}
+          rolloSearch={rolloSearch}
+          setRolloSearch={setRolloSearch}
+          loading={loading}
+          rollos={rollos}
+          onDeleteRollo={handleDeleteRollo}
+        />
       )}
 
-      {/* MODAL MÁS INFORMACIÓN DEL VIAJE (EXTRACTO STRICT DE 6 CAMPOS) */}
-      {selectedViajeDetail && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '560px', width: '95%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Truck size={20} style={{ color: 'var(--blue)' }} />
-                Detalle del Viaje #{selectedViajeDetail.numero_viaje}
-              </h2>
-              <button
-                onClick={() => setSelectedViajeDetail(null)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: 'var(--bg-element)', padding: '1.25rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', marginBottom: '1.25rem' }}>
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block' }}>1. Fecha del Envío</span>
-                <strong style={{ fontSize: '0.95rem', color: 'var(--white)' }}>
-                  {selectedViajeDetail.fecha_envio ? new Date(selectedViajeDetail.fecha_envio + 'T00:00:00').toLocaleDateString() : '—'}
-                </strong>
-              </div>
-
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block' }}>2. Hora del Envío</span>
-                <strong style={{ fontSize: '0.95rem', color: 'var(--white)' }}>
-                  {selectedViajeDetail.hora_envio || '—'}
-                </strong>
-              </div>
-
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block' }}>3. Unidad</span>
-                <strong style={{ fontSize: '0.95rem', color: 'var(--yellow)' }}>
-                  {selectedViajeDetail.vehiculo_detail ? `${selectedViajeDetail.vehiculo_detail.placa} (${selectedViajeDetail.vehiculo_detail.unidad || selectedViajeDetail.vehiculo_detail.modelo || 'Unidad'})` : 'Sin unidad'}
-                </strong>
-              </div>
-
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block' }}>4. Conductor Asignado</span>
-                <strong style={{ fontSize: '0.95rem', color: 'var(--white)' }}>
-                  {selectedViajeDetail.conductor_detail ? selectedViajeDetail.conductor_detail.nombre : 'Sin conductor asignado'}
-                </strong>
-              </div>
-            </div>
-
-            <div style={{ backgroundColor: 'var(--bg-element)', padding: '1rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', marginBottom: '1.25rem' }}>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
-                Cliente y Dirección de Destino:
-              </span>
-              <div style={{ fontSize: '0.92rem', color: 'var(--white)', fontWeight: 700, marginBottom: '0.25rem' }}>
-                {selectedViajeDetail.cliente_detail?.numero_cliente || 'N/A'} - {selectedViajeDetail.cliente_detail?.nombre || ''}
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                {selectedViajeDetail.cliente_detail?.direccion || 'Sin dirección registrada.'}
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: 'var(--bg-element)', padding: '1.25rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block' }}>5. Peso de la Carga</span>
-                <strong style={{ fontSize: '1rem', color: 'var(--white)' }}>
-                  {Number(selectedViajeDetail.peso_carga_kg || 0).toLocaleString()} kg
-                </strong>
-              </div>
-
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block' }}>6. Volumen (Rollos Asignados)</span>
-                <strong style={{ fontSize: '1rem', color: 'var(--blue)' }}>
-                  {selectedViajeDetail.cantidad_rollos || (selectedViajeDetail.rollos_detail ? selectedViajeDetail.rollos_detail.length : 0)} rollos
-                </strong>
-              </div>
-            </div>
-
-            {/* Listado de Rollos Asignados */}
-            <div style={{ marginTop: '1.25rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
-              <div style={{ padding: '0.65rem 0.9rem', backgroundColor: 'var(--bg-element)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Layers size={15} style={{ color: 'var(--yellow)' }} />
-                  Rollos Asignados a la Carga ({selectedViajeDetail.rollos_detail?.length || 0})
-                </span>
-                <span style={{
-                  fontSize: '0.75rem',
-                  padding: '0.15rem 0.55rem',
-                  borderRadius: '12px',
-                  fontWeight: 700,
-                  backgroundColor: selectedViajeDetail.estado === 'Cerrada' ? '#dcfce7' : '#fef3c7',
-                  color: selectedViajeDetail.estado === 'Cerrada' ? '#15803d' : '#b45309'
-                }}>
-                  {selectedViajeDetail.estado === 'Cerrada' ? 'Viaje Entregado y Cerrado' : `Estado: ${selectedViajeDetail.estado || 'Abierta'}`}
-                </span>
-              </div>
-
-              <div style={{ maxHeight: '170px', overflowY: 'auto' }}>
-                {(!selectedViajeDetail.rollos_detail || selectedViajeDetail.rollos_detail.length === 0) ? (
-                  <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-                    No hay rollos físicos individuales vinculados a este viaje.
-                  </div>
-                ) : (
-                  <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--text-muted)' }}>
-                        <th style={{ padding: '0.45rem 0.75rem' }}>Código Rollo</th>
-                        <th style={{ padding: '0.45rem 0.75rem' }}>Tipo de Alambre</th>
-                        <th style={{ padding: '0.45rem 0.75rem', textAlign: 'right' }}>Peso</th>
-                        <th style={{ padding: '0.45rem 0.75rem', textAlign: 'center' }}>Estado Rollo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedViajeDetail.rollos_detail.map((rd) => (
-                        <tr key={rd.id_rollo} style={{ borderBottom: '1px solid var(--border)' }}>
-                          <td style={{ padding: '0.45rem 0.75rem', fontWeight: 700, color: 'var(--yellow)' }}>
-                            {rd.codigo_rollo}
-                          </td>
-                          <td style={{ padding: '0.45rem 0.75rem', color: 'var(--white)' }}>
-                            {rd.tipo_alambre}
-                          </td>
-                          <td style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontWeight: 600, color: 'var(--white)' }}>
-                            {rd.peso_kg} kg
-                          </td>
-                          <td style={{ padding: '0.45rem 0.75rem', textAlign: 'center' }}>
-                            <span style={{
-                              fontSize: '0.72rem',
-                              padding: '0.15rem 0.45rem',
-                              borderRadius: '10px',
-                              backgroundColor: rd.estado === 'Entregado' ? '#dcfce7' : '#fef3c7',
-                              color: rd.estado === 'Entregado' ? '#15803d' : '#b45309',
-                              fontWeight: 700
-                            }}>
-                              {rd.estado}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-
-            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <div>
-                {selectedViajeDetail.estado !== 'Cerrada' && (
-                  <button
-                    className="btn-primary"
-                    style={{ backgroundColor: '#16a34a', borderColor: '#16a34a', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', padding: '0.45rem 0.85rem' }}
-                    onClick={() => {
-                      setConfirmDialog({
-                        title: "Completar Entrega",
-                        message: "¿Desea marcar este viaje como ENTREGADO y CERRADO? Los rollos asignados se actualizarán a estado 'Entregado'.",
-                        confirmText: "Completar Entrega",
-                        confirmColor: "#16a34a",
-                        onConfirm: async () => {
-                          await handleUpdateStatusViaje(selectedViajeDetail.id_viaje, 'Cerrada');
-                        }
-                      });
-                    }}
-                  >
-                    <CheckCircle2 size={15} /> Completar Entrega (Cerrar Viaje)
-                  </button>
-                )}
-              </div>
-
-              <button
-                className="btn-secondary"
-                onClick={() => setSelectedViajeDetail(null)}
-              >
-                Cerrar Detalle
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL DETALLE DE VIAJE */}
+      <ModalDetalleViaje
+        isOpen={Boolean(selectedViajeDetail)}
+        onClose={() => setSelectedViajeDetail(null)}
+        viaje={selectedViajeDetail}
+        onCompletarEntrega={(id) => handleUpdateStatusViaje(id, 'Cerrada')}
+        setConfirmDialog={setConfirmDialog}
+      />
 
       {/* MODAL 1: PROGRAMAR NUEVO VIAJE */}
-      {isNewViajeModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '680px', width: '95%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Truck size={20} style={{ color: 'var(--blue)' }} />
-                Programar Nuevo Viaje
-              </h2>
-              <button
-                onClick={() => setIsNewViajeModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveViaje}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Número de Viaje *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={viajeForm.numero_viaje}
-                    readOnly
-                    title="Correlativo asignado automáticamente"
-                    style={{ fontWeight: 700, color: 'var(--yellow)', paddingLeft: '0.6rem', cursor: 'default' }}
-                  />
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Correlativo generado automáticamente</span>
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Unidad *</label>
-                  <CustomSelect
-                    options={[
-                      { value: '', label: '-- Seleccionar Unidad --' },
-                      ...vehiculos.map(v => ({
-                        value: v.id_vehiculo,
-                        label: v.activo !== false
-                          ? `${v.placa} (${v.unidad || v.modelo || 'Unidad'}) - Activo`
-                          : `${v.placa} (${v.unidad || v.modelo || 'Unidad'}) - ⛔ Inactivo (No disponible)`
-                      }))
-                    ]}
-                    value={viajeForm.vehiculo}
-                    onChange={(e) => setViajeForm({ ...viajeForm, vehiculo: e.target.value })}
-                    placeholder="-- Seleccionar Unidad --"
-                    required
-                    maxHeight={180}
-                  />
-                  {(() => {
-                    const selVeh = vehiculos.find(v => String(v.id_vehiculo) === String(viajeForm.vehiculo));
-                    if (selVeh && selVeh.activo === false) {
-                      return (
-                        <div style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.35rem', fontWeight: 600 }}>
-                          ⚠️ Esta unidad está inactiva y no se puede generar el viaje con ella.
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Cliente *</label>
-                <CustomSelect
-                  options={[
-                    { value: '', label: '-- Seleccionar Cliente --' },
-                    ...clientes.map(c => ({
-                      value: c.id_cliente,
-                      label: `${c.numero_cliente} - ${c.nombre}`
-                    }))
-                  ]}
-                  value={viajeForm.cliente}
-                  onChange={(e) => setViajeForm({ ...viajeForm, cliente: e.target.value })}
-                  placeholder="-- Seleccionar Cliente --"
-                  required
-                  maxHeight={200}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Conductor Asignado *</label>
-                <CustomSelect
-                  options={[
-                    { value: '', label: '-- Seleccionar Conductor --' },
-                    ...conductores.map(c => ({
-                      value: c.id_conductor,
-                      label: `${c.nombre}${c.codigo_carnet ? ` - Carnet: ${c.codigo_carnet}` : ''}`
-                    }))
-                  ]}
-                  value={viajeForm.conductor}
-                  onChange={(e) => setViajeForm({ ...viajeForm, conductor: e.target.value })}
-                  placeholder="-- Seleccionar Conductor --"
-                  required
-                  maxHeight={180}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Fecha del Envío *</label>
-                  <input
-                    type="date"
-                    className="form-input"
-                    value={viajeForm.fecha_envio}
-                    onChange={(e) => setViajeForm({ ...viajeForm, fecha_envio: e.target.value })}
-                    required
-                    style={{ paddingLeft: '0.6rem' }}
-                  />
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Hora del Envío</label>
-                  <input
-                    type="time"
-                    className="form-input"
-                    value={viajeForm.hora_envio}
-                    onChange={(e) => setViajeForm({ ...viajeForm, hora_envio: e.target.value })}
-                    style={{ paddingLeft: '0.6rem' }}
-                  />
-                </div>
-              </div>
-
-              {/* Asignación interactiva de Rollos de Alambre */}
-              <div style={{ marginTop: '0.75rem', marginBottom: '0.75rem', padding: '0.85rem', backgroundColor: 'var(--bg-element)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <label className="form-label" style={{ margin: 0, fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Layers size={16} style={{ color: 'var(--yellow)' }} />
-                    Asignación de Rollos de Alambre ({selectedRollosIds.length} seleccionados)
-                  </label>
-                  <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, backgroundColor: '#dcfce7', padding: '0.15rem 0.5rem', borderRadius: '10px' }}>
-                    {rollosDisponibles.length} disponibles en bodega
-                  </span>
-                </div>
-
-                {/* Lista seleccionable de rollos disponibles para selección libre */}
-                {rollosDisponibles.length === 0 ? (
-                  <div style={{ padding: '0.85rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px dashed #ef4444', borderRadius: '6px', textAlign: 'center', fontSize: '0.8rem', color: '#f87171' }}>
-                    <AlertCircle size={16} style={{ verticalAlign: 'middle', marginRight: '0.3rem' }} />
-                    No hay rollos disponibles en bodega. Puede registrar nuevos lotes en la pestaña <strong>Control de Rollos</strong>.
-                  </div>
-                ) : (
-                  <div style={{ maxHeight: '185px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '6px', backgroundColor: 'var(--bg-base)' }}>
-                    {rollosDisponibles.map((r) => {
-                      const isSelected = selectedRollosIds.includes(r.id_rollo);
-                      return (
-                        <div
-                          key={r.id_rollo}
-                          onClick={() => handleToggleRolloSelection(r)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '0.35rem 0.65rem',
-                            borderBottom: '1px solid var(--border)',
-                            cursor: 'pointer',
-                            backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
-                            transition: 'background-color 0.1s ease'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
-                            {isSelected ? (
-                              <CheckSquare size={16} style={{ color: 'var(--blue)' }} />
-                            ) : (
-                              <Square size={16} style={{ color: 'var(--text-muted)' }} />
-                            )}
-                            <span style={{ fontWeight: 700, color: isSelected ? 'var(--blue)' : 'var(--yellow)', fontSize: '0.82rem' }}>
-                              {r.codigo_rollo}
-                            </span>
-                            <span style={{ color: 'var(--white)', fontSize: '0.78rem' }}>
-                              {r.tipo_alambre}
-                            </span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.78rem' }}>
-                            <span style={{ color: 'var(--text-muted)' }}>{r.ubicacion || 'Bodega'}</span>
-                            <strong style={{ color: 'var(--white)' }}>{Number(r.peso_kg || 0).toFixed(1)} kg</strong>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Resumen calculado automático */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.75rem' }}>
-                  <div>
-                    <label className="form-label" style={{ fontSize: '0.75rem', margin: '0 0 0.2rem 0' }}>Rollos Asignados</label>
-                    <input
-                      type="number"
-                      className="form-input"
-                      value={viajeForm.cantidad_rollos}
-                      readOnly
-                      style={{ fontWeight: 700, color: 'var(--blue)', paddingLeft: '0.6rem', backgroundColor: 'var(--bg-base)', cursor: 'default' }}
-                    />
-                  </div>
-                  <div>
-                    <label className="form-label" style={{ fontSize: '0.75rem', margin: '0 0 0.2rem 0' }}>Peso Total Carga (kg)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="form-input"
-                      value={viajeForm.peso_carga_kg}
-                      onChange={(e) => setViajeForm({ ...viajeForm, peso_carga_kg: parseFloat(e.target.value) || 0 })}
-                      style={{ fontWeight: 700, color: 'var(--white)', paddingLeft: '0.6rem' }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setIsNewViajeModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  Guardar Viaje
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ModalProgramarViaje
+        isOpen={isNewViajeModalOpen}
+        onClose={() => setIsNewViajeModalOpen(false)}
+        viajeForm={viajeForm}
+        setViajeForm={setViajeForm}
+        vehiculos={vehiculos}
+        clientes={clientes}
+        conductores={conductores}
+        rollosDisponibles={rollosDisponibles}
+        selectedRollosIds={selectedRollosIds}
+        onToggleRolloSelection={handleToggleRolloSelection}
+        onSubmit={handleSaveViaje}
+      />
 
       {/* MODAL 2: CREAR / EDITAR CLIENTE */}
-      {isNewClienteModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '520px', width: '95%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Building size={20} style={{ color: 'var(--blue)' }} />
-                {editingClienteId ? 'Editar Datos del Cliente' : 'Registrar Nuevo Cliente'}
-              </h2>
-              <button
-                onClick={() => setIsNewClienteModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveCliente}>
-              <div className="form-group">
-                <label className="form-label">Número / Código de Cliente *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. 0000607020"
-                  style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--yellow)' }}
-                  value={clienteForm.numero_cliente}
-                  onChange={(e) => setClienteForm({ ...clienteForm, numero_cliente: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Nombre del Cliente / Empresa *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. GRUPO VITAL VITALSA TICSA"
-                  style={{ paddingLeft: '0.6rem' }}
-                  value={clienteForm.nombre}
-                  onChange={(e) => setClienteForm({ ...clienteForm, nombre: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Dirección Pre-establecida</label>
-                <textarea
-                  className="form-input"
-                  rows="3"
-                  placeholder="Ej. Km 14.5 Carretera a Mixco, Zona 4 de Mixco, Guatemala"
-                  style={{ padding: '0.6rem', resize: 'vertical' }}
-                  value={clienteForm.direccion}
-                  onChange={(e) => setClienteForm({ ...clienteForm, direccion: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setIsNewClienteModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  {editingClienteId ? 'Guardar Cambios' : 'Registrar Cliente'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ModalCliente
+        isOpen={isNewClienteModalOpen}
+        onClose={() => setIsNewClienteModalOpen(false)}
+        clienteForm={clienteForm}
+        setClienteForm={setClienteForm}
+        editingClienteId={editingClienteId}
+        onSubmit={handleSaveCliente}
+      />
 
       {/* MODAL 3: CREAR / EDITAR CONDUCTOR */}
-      {isNewConductorModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '480px', width: '95%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Users size={20} style={{ color: 'var(--blue)' }} />
-                {editingConductorId ? 'Editar Conductor' : 'Registrar Nuevo Conductor'}
-              </h2>
-              <button
-                onClick={() => setIsNewConductorModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
+      <ModalConductor
+        isOpen={isNewConductorModalOpen}
+        onClose={() => setIsNewConductorModalOpen(false)}
+        conductorForm={conductorForm}
+        setConductorForm={setConductorForm}
+        editingConductorId={editingConductorId}
+        onSubmit={handleSaveConductor}
+      />
 
-            <form onSubmit={handleSaveConductor}>
-              <div className="form-group">
-                <label className="form-label">Código de Carnet (Números)</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. 0000701010"
-                  style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--yellow)' }}
-                  value={conductorForm.codigo_carnet}
-                  onChange={(e) => setConductorForm({ ...conductorForm, codigo_carnet: e.target.value.replace(/\D/g, '') })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Nombre Completo del Conductor *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. Roberto Estrada"
-                  style={{ paddingLeft: '0.6rem' }}
-                  value={conductorForm.nombre}
-                  onChange={(e) => setConductorForm({ ...conductorForm, nombre: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Caducidad del Número de Licencia</label>
-                <input
-                  type="date"
-                  className="form-input"
-                  style={{ paddingLeft: '0.6rem' }}
-                  value={conductorForm.fecha_vencimiento_licencia}
-                  onChange={(e) => setConductorForm({ ...conductorForm, fecha_vencimiento_licencia: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setIsNewConductorModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  {editingConductorId ? 'Guardar Cambios' : 'Guardar Conductor'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 4: CREAR / EDITAR VEHÍCULO (CAMIÓN) */}
-      {isNewVehiculoModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '480px', width: '95%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Truck size={20} style={{ color: 'var(--blue)' }} />
-                {editingVehiculoId ? 'Editar Vehículo' : 'Registrar Nuevo Vehículo'}
-              </h2>
-              <button
-                onClick={() => setIsNewVehiculoModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveVehiculo}>
-              <div className="form-group">
-                <label className="form-label">Unidad *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. Kenworth T680 2022 o Camión 01"
-                  style={{ paddingLeft: '0.6rem' }}
-                  value={vehiculoForm.unidad}
-                  onChange={(e) => setVehiculoForm({ ...vehiculoForm, unidad: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Placa *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. C-44589"
-                  style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--yellow)' }}
-                  value={vehiculoForm.placa}
-                  onChange={(e) => setVehiculoForm({ ...vehiculoForm, placa: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Estado de la Unidad</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '0.4rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--white)' }}>
-                    <input
-                      type="radio"
-                      name="vehiculoActivo"
-                      checked={vehiculoForm.activo === true}
-                      onChange={() => setVehiculoForm({ ...vehiculoForm, activo: true })}
-                    />
-                    Activo
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--white)' }}>
-                    <input
-                      type="radio"
-                      name="vehiculoActivo"
-                      checked={vehiculoForm.activo === false}
-                      onChange={() => setVehiculoForm({ ...vehiculoForm, activo: false })}
-                    />
-                    Inactivo
-                  </label>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setIsNewVehiculoModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  {editingVehiculoId ? 'Guardar Cambios' : 'Guardar Vehículo'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* MODAL 4: CREAR / EDITAR VEHÍCULO */}
+      <ModalVehiculo
+        isOpen={isNewVehiculoModalOpen}
+        onClose={() => setIsNewVehiculoModalOpen(false)}
+        vehiculoForm={vehiculoForm}
+        setVehiculoForm={setVehiculoForm}
+        editingVehiculoId={editingVehiculoId}
+        onSubmit={handleSaveVehiculo}
+      />
 
       {/* MODAL 5: REGISTRAR NUEVO CÓDIGO DE ALAMBRE */}
-      {isNewRolloModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '480px', width: '95%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Layers size={20} style={{ color: 'var(--yellow)' }} />
-                Registrar Código de Alambre
-              </h2>
-              <button
-                onClick={() => setIsNewRolloModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveNewRolloCode}>
-              <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: 'rgba(59, 130, 246, 0.08)', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.25)', fontSize: '0.8rem', color: '#93c5fd', lineHeight: 1.4 }}>
-                ℹ️ Este formulario es <strong>exclusivo para crear nuevos códigos de alambre</strong> en el catálogo. Para dar ingreso de rollos físicos a bodega, utiliza el botón <strong>"Ingreso de Rollos"</strong>.
-              </div>
-
-              {/* 1. Código del Alambre */}
-              <div className="form-group">
-                <label className="form-label">Código del Alambre / Rollo *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. AL-72150, AL-72156..."
-                  value={newRolloCodeForm.codigo}
-                  onChange={(e) => setNewRolloCodeForm({ ...newRolloCodeForm, codigo: e.target.value })}
-                  required
-                  style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--yellow)' }}
-                />
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Código identificador único para este tipo de alambre</span>
-              </div>
-
-              {/* 2. Tipo / Descripción del Rollo (Editable) */}
-              <div className="form-group">
-                <label className="form-label">Tipo / Descripción del Rollo *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ej. Alambre Galvanizado Calibre 10 de Alta Resistencia"
-                  value={newRolloCodeForm.nombre}
-                  onChange={(e) => setNewRolloCodeForm({ ...newRolloCodeForm, nombre: e.target.value })}
-                  required
-                  style={{ paddingLeft: '0.6rem', color: 'var(--white)' }}
-                />
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Escribe la descripción o especificación del alambre</span>
-              </div>
-
-              {/* 3. Peso Estándar Unitario (kg) */}
-              <div className="form-group">
-                <label className="form-label">Peso Estándar por Rollo (kg) *</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="1"
-                  className="form-input"
-                  placeholder="50.0"
-                  value={newRolloCodeForm.peso_estandar_kg}
-                  onChange={(e) => setNewRolloCodeForm({ ...newRolloCodeForm, peso_estandar_kg: parseFloat(e.target.value) || 0 })}
-                  required
-                  style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--white)' }}
-                />
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Peso promedio predeterminado en kilogramos</span>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setIsNewRolloModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1.5, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
-                >
-                  <PlusCircle size={16} />
-                  Crear Código
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ModalNuevoCodigoRollo
+        isOpen={isNewRolloModalOpen}
+        onClose={() => setIsNewRolloModalOpen(false)}
+        newRolloCodeForm={newRolloCodeForm}
+        setNewRolloCodeForm={setNewRolloCodeForm}
+        onSubmit={handleSaveNewRolloCode}
+      />
 
       {/* MODAL 6: INGRESO DE ROLLOS CON CÓDIGO EXISTENTE */}
-      {isIngresoRolloModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '540px', width: '95%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Download size={20} style={{ color: 'var(--blue)' }} />
-                Ingreso a Bodega de Rollos (Código Existente)
-              </h2>
-              <button
-                onClick={() => setIsIngresoRolloModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
+      <ModalIngresoRollos
+        isOpen={isIngresoRolloModalOpen}
+        onClose={() => setIsIngresoRolloModalOpen(false)}
+        ingresoRolloForm={ingresoRolloForm}
+        setIngresoRolloForm={setIngresoRolloForm}
+        tiposAlambre={tiposAlambre}
+        onSubmit={handleSaveIngresoRolloExistente}
+      />
 
-            <form onSubmit={handleSaveIngresoRolloExistente}>
-              <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: 'rgba(59, 130, 246, 0.08)', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.25)', fontSize: '0.8rem', color: '#93c5fd', lineHeight: 1.4 }}>
-                ℹ️ Selecciona el <strong>código existente de alambre</strong> pre-registrado. Los datos técnicos (tipo de alambre y peso estándar) se cargan automáticamente sin necesidad de escribirlos a mano.
-              </div>
+      {/* DIÁLOGO CONFIRMACIÓN GENERAL DEL SISTEMA */}
+      <ConfirmDialog dialog={confirmDialog} onCancel={() => setConfirmDialog(null)} />
 
-              {/* Selector de Código Existente */}
-              <div className="form-group">
-                <label className="form-label">Código de Alambre Pre-Registrado *</label>
-                <select
-                  className="form-input"
-                  value={ingresoRolloForm.codigo_alambre}
-                  onChange={(e) => {
-                    const selected = tiposAlambre.find(t => t.codigo === e.target.value);
-                    setIngresoRolloForm({
-                      ...ingresoRolloForm,
-                      codigo_alambre: e.target.value,
-                      ubicacion: selected?.ubicacion_defecto || ingresoRolloForm.ubicacion
-                    });
-                  }}
-                  style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--yellow)' }}
-                  required
-                >
-                  {tiposAlambre.map((t) => (
-                    <option key={t.id_tipo || t.codigo} value={t.codigo}>
-                      [{t.codigo}] {t.nombre}
-                    </option>
-                  ))}
-                </select>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Catálogo oficial de códigos pre-registrados</span>
-              </div>
-
-              {/* Datos técnicos autocompletados (Solo Lectura) */}
-              {(() => {
-                const selectedWire = tiposAlambre.find(t => t.codigo === ingresoRolloForm.codigo_alambre) || tiposAlambre[0];
-                return (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '0.75rem', marginBottom: '1rem', backgroundColor: 'var(--bg-element)', padding: '0.85rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>
-                        Tipo de Alambre (Pre-registrado)
-                      </span>
-                      <strong style={{ fontSize: '0.88rem', color: 'var(--white)' }}>
-                        {selectedWire?.nombre || '—'}
-                      </strong>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>
-                        Peso Estándar Unitario
-                      </span>
-                      <strong style={{ fontSize: '0.88rem', color: 'var(--yellow)' }}>
-                        {Number(selectedWire?.peso_estandar_kg || 50).toFixed(2)} kg
-                      </strong>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Cantidad y Ubicación */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Cantidad de Rollos a Ingresar *</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="500"
-                    className="form-input"
-                    value={ingresoRolloForm.cantidad}
-                    onChange={(e) => setIngresoRolloForm({ ...ingresoRolloForm, cantidad: parseInt(e.target.value) || 1 })}
-                    required
-                    style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--blue)' }}
-                  />
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Rollos que ingresan a bodega</span>
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Ubicación / Bahía en Bodega *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Ej. Bodega Central - Bahía A"
-                    value={ingresoRolloForm.ubicacion}
-                    onChange={(e) => setIngresoRolloForm({ ...ingresoRolloForm, ubicacion: e.target.value })}
-                    required
-                    style={{ paddingLeft: '0.6rem' }}
-                  />
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Lugar de almacenamiento</span>
-                </div>
-              </div>
-
-              {/* Resumen Calculado */}
-              {(() => {
-                const selectedWire = tiposAlambre.find(t => t.codigo === ingresoRolloForm.codigo_alambre) || tiposAlambre[0];
-                const pesoUnit = parseFloat(selectedWire?.peso_estandar_kg || 50);
-                const totalPeso = (ingresoRolloForm.cantidad || 0) * pesoUnit;
-                return (
-                  <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-element)', borderRadius: '6px', border: '1px solid var(--border)', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Peso Total del Ingreso:</span>
-                    <strong style={{ fontSize: '1rem', color: 'var(--yellow)' }}>
-                      {totalPeso.toLocaleString()} kg
-                    </strong>
-                  </div>
-                );
-              })()}
-
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setIsIngresoRolloModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--blue)' }}
-                >
-                  <Download size={16} />
-                  Registrar Ingreso a Bodega
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* DIÁLOGO CONFIRMACIÓN GENERAL DEL SISTEMA (Reemplaza confirm nativo del navegador) */}
-      {confirmDialog && (
-        <div className="modal-overlay" style={{ zIndex: 10001 }}>
-          <div className="modal-content" style={{ maxWidth: '420px', width: '92%', borderRadius: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.85rem' }}>
-              <div style={{
-                width: 36,
-                height: 36,
-                borderRadius: '8px',
-                backgroundColor: confirmDialog.confirmColor === 'var(--danger)' ? '#fee2e2' : '#e0f2fe',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: confirmDialog.confirmColor === 'var(--danger)' ? 'var(--danger)' : 'var(--blue)',
-                flexShrink: 0
-              }}>
-                <AlertCircle size={20} />
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--white)' }}>
-                {confirmDialog.title}
-              </h3>
-            </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.35rem', lineHeight: 1.5 }}>
-              {confirmDialog.message}
-            </p>
-            <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn-secondary"
-                style={{ flex: 1 }}
-                onClick={() => setConfirmDialog(null)}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn-primary"
-                style={{
-                  flex: 1,
-                  backgroundColor: confirmDialog.confirmColor || 'var(--blue)',
-                  borderColor: 'transparent'
-                }}
-                onClick={async () => {
-                  const action = confirmDialog.onConfirm;
-                  setConfirmDialog(null);
-                  if (action) await action();
-                }}
-              >
-                {confirmDialog.confirmText || 'Confirmar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* NOTIFICACIÓN TOAST DEL SISTEMA (Reemplaza alert nativo del navegador) */}
-      {toast && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '1.5rem',
-            right: '1.5rem',
-            zIndex: 10005,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            padding: '0.85rem 1.25rem',
-            borderRadius: '8px',
-            backgroundColor: toast.type === 'success' ? '#15803d' : toast.type === 'error' ? '#b91c1c' : '#d97706',
-            color: '#ffffff',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -4px rgba(0, 0, 0, 0.15)',
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            maxWidth: '440px'
-          }}
-        >
-          {toast.type === 'success' && <CheckCircle2 size={20} style={{ flexShrink: 0 }} />}
-          {toast.type === 'error' && <AlertCircle size={20} style={{ flexShrink: 0 }} />}
-          {toast.type === 'warning' && <AlertCircle size={20} style={{ flexShrink: 0 }} />}
-          <span style={{ flex: 1 }}>{toast.message}</span>
-          <button
-            onClick={() => setToast(null)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              cursor: 'pointer',
-              padding: 0,
-              display: 'flex',
-              alignItems: 'center',
-              opacity: 0.85
-            }}
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
+      {/* NOTIFICACIÓN TOAST DEL SISTEMA */}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
 
     </div>
   );

@@ -7,7 +7,7 @@ from .serializers import RegistroBitacoraSerializer
 
 class IsAdminOnly(permissions.BasePermission):
     """
-    ISO 27001: La bitácora solo puede ser consultada por usuarios con privilegios de Administrador / Auditor.
+    La bitácora solo puede ser consultada por usuarios con privilegios de Administrador
     """
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
@@ -21,8 +21,7 @@ class IsAdminOnly(permissions.BasePermission):
 
 class RegistroBitacoraViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet de Solo Lectura para Bitácora (ISO/IEC 27001 Control A.8.33 - No repudio e Inmutabilidad).
-    No permite POST, PUT, PATCH ni DELETE desde la API.
+    Vista de Solo Lectura para Bitácora
     """
     queryset = RegistroBitacora.objects.all().select_related('usuario').order_by('-fecha_hora')
     serializer_class = RegistroBitacoraSerializer
@@ -62,7 +61,7 @@ class RegistroBitacoraViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'])
     def metricas(self, request):
         """
-        Resumen cuantitativo para reportes de control interno y auditoría ISO.
+        Resumen para reportes de control interno y auditoría.
         """
         total = RegistroBitacora.objects.count()
         por_modulo = RegistroBitacora.objects.values('modulo').annotate(total=Count('id_bitacora')).order_by('-total')

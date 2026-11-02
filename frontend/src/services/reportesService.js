@@ -61,7 +61,7 @@ export const reportesService = {
     return res.data;
   },
 
-  // Helper para descarga de archivos binarios (Excel o CSV)
+  // Utilidad para descarga de archivos binarios (Excel o CSV)
   exportFile: async (endpoint, params = {}, format = 'excel', defaultFilename = 'reporte') => {
     try {
       const response = await api.get(endpoint, {

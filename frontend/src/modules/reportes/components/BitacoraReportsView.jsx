@@ -101,7 +101,6 @@ export const BitacoraReportsView = () => {
                 <option value="Taller">Taller</option>
                 <option value="Logística">Logística</option>
                 <option value="Seguridad y Usuarios">Seguridad y Usuarios</option>
-                <option value="General">General</option>
               </select>
             </div>
 

@@ -1,8 +1,8 @@
-// Layout y estructura
+// Diseño y estructura
 export { Navbar, Sidebar } from './layout';
 
 // Componentes comunes
-export { CustomSelect, CambioPasswordModal } from './common';
+export { CustomSelect, CambioPasswordModal, ConfirmDialog, ToastNotification } from './common';
 
 // Re-exportación de módulos de negocio
 export { BodegaModule } from '../modules/bodega';

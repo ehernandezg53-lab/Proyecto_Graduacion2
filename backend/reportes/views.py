@@ -16,7 +16,6 @@ from .services import bodega_reports, taller_reports, logistica_reports, bitacor
 def check_module_permission(user, module_name):
     """
     Verifica si el usuario tiene permiso para consultar datos del módulo indicado.
-    Administrador siempre tiene acceso total.
     """
     if not user or not user.is_authenticated:
         return False
@@ -39,8 +38,6 @@ def check_module_permission(user, module_name):
 class DashboardKpiView(APIView):
     """
     KPIs globales para la vista principal del Centro de Reportes.
-    Filtra los indicadores según las áreas a las que el usuario tenga permiso.
-    Optimizado con agregaciones SQL nativas para evitar sobrecarga en memoria.
     """
     permission_classes = [IsAuthenticated]
 
@@ -114,10 +111,7 @@ class DashboardKpiView(APIView):
 
         return Response(kpis)
 
-
-# =========================================================================
 # VISTAS DE REPORTES DE BODEGA
-# =========================================================================
 
 class KardexReportView(APIView):
     permission_classes = [IsAuthenticated]
@@ -212,9 +206,7 @@ class ValorizacionReportView(APIView):
         return Response(result)
 
 
-# =========================================================================
 # VISTAS DE REPORTES DE TALLER
-# =========================================================================
 
 class TallerOrdenesReportView(APIView):
     permission_classes = [IsAuthenticated]
@@ -318,9 +310,7 @@ class ProductividadMecanicosReportView(APIView):
         return Response(result)
 
 
-# =========================================================================
 # VISTAS DE REPORTES DE LOGÍSTICA
-# =========================================================================
 
 class LogisticaViajesReportView(APIView):
     permission_classes = [IsAuthenticated]
@@ -420,9 +410,7 @@ class LicenciasConductoresReportView(APIView):
         return Response(result)
 
 
-# =========================================================================
 # VISTAS DE REPORTES DE AUDITORÍA / SEGURIDAD
-# =========================================================================
 
 class BitacoraReportView(APIView):
     permission_classes = [IsAuthenticated]

@@ -17,10 +17,11 @@ import {
   Car,
   Layers,
   KeyRound,
-  BarChart3
+  BarChart3,
+  X
 } from 'lucide-react';
 
-export const Sidebar = ({ activeTab, activeSubTab, onSelectModule, setActiveTab }) => {
+export const Sidebar = ({ activeTab, activeSubTab, onSelectModule, setActiveTab, isSidebarOpen, closeSidebar }) => {
   const { user } = useAuth();
   const role = user?.rol;
 
@@ -86,6 +87,7 @@ export const Sidebar = ({ activeTab, activeSubTab, onSelectModule, setActiveTab 
       } else if (setActiveTab) {
         setActiveTab(moduleKey);
       }
+      if (closeSidebar) closeSidebar();
     }
   };
 
@@ -96,6 +98,7 @@ export const Sidebar = ({ activeTab, activeSubTab, onSelectModule, setActiveTab 
     } else if (setActiveTab) {
       setActiveTab(moduleKey);
     }
+    if (closeSidebar) closeSidebar();
   };
 
   const toggleChevron = (moduleKey, e) => {
@@ -107,10 +110,35 @@ export const Sidebar = ({ activeTab, activeSubTab, onSelectModule, setActiveTab 
   };
 
   return (
-    <aside className="sidebar">
-      <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--yellow)', letterSpacing: '0.05em', marginBottom: '1rem' }}>
-        Navegación Principal
-      </div>
+    <>
+      {/* Fondo oscuro traslúcido para móviles al abrir el menú lateral */}
+      <div
+        className={`sidebar-backdrop ${isSidebarOpen ? 'active' : ''}`}
+        onClick={closeSidebar}
+        aria-hidden="true"
+      />
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        {/* Cabecera del Sidebar visible en pantallas táctiles y móviles */}
+        <div className="sidebar-mobile-header">
+          <div className="navbar-brand">
+            <div className="brand-icon-box" style={{ width: '32px', height: '32px', marginBottom: 0 }}>
+              <Truck size={18} />
+            </div>
+            <span>Sistema de Gestión <strong style={{ color: 'var(--yellow)' }}>TM</strong></span>
+          </div>
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            onClick={closeSidebar}
+            aria-label="Cerrar navegación"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--yellow)', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+          Navegación Principal
+        </div>
 
       {/* 1. MÓDULO DE BODEGA */}
       {hasBodegaPermission && (
@@ -420,7 +448,7 @@ export const Sidebar = ({ activeTab, activeSubTab, onSelectModule, setActiveTab 
                 >
                   <div className="nav-subitem-content">
                     <FileText size={14} />
-                    <span>Auditoría ISO 27001</span>
+                    <span>Auditoría</span>
                   </div>
                 </div>
               )}
@@ -433,6 +461,7 @@ export const Sidebar = ({ activeTab, activeSubTab, onSelectModule, setActiveTab 
         Rol: <strong style={{ color: 'var(--yellow)' }}>{role || 'Sin Rol'}</strong>
       </div>
     </aside>
+    </>
   );
 };
 

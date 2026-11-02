@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '@/services/api';
 import { usuariosService } from '@/services/usuariosService';
 import { useToast } from '@/hooks/useToast';
+import { ConfirmDialog, ToastNotification } from '@/components/common';
+import { ModalUsuario, ModalAutorizarPin, ModalImprimirHoja } from './components';
 import {
   Users, UserPlus, Search, CheckCircle2, XCircle, RefreshCw, X, Edit2, Trash2,
   KeyRound, Printer, Clock, ShieldCheck, AlertCircle, Check, FileText
@@ -200,15 +202,10 @@ export const UserManagement = ({ activeMainTab: externalActiveMainTab, setActive
       return;
     }
 
-    if (editingUser && formData.password && formData.password.length < 8) {
-      setUserFormError("La nueva contraseña debe tener como mínimo 8 caracteres.");
-      return;
-    }
-
     try {
       if (editingUser) {
         const dataToSend = { ...formData };
-        if (!dataToSend.password) delete dataToSend.password;
+        delete dataToSend.password; // Por política de seguridad, la contraseña nunca se actualiza desde editar
         await api.put(`/usuarios/${editingUser.id}/`, dataToSend);
         showToast('success', 'Usuario actualizado exitosamente.');
       } else {
@@ -388,7 +385,7 @@ export const UserManagement = ({ activeMainTab: externalActiveMainTab, setActive
               />
             </div>
 
-            <div style={{ width: '150px' }}>
+            <div style={{ width: '150px', flex: '1 1 auto', minWidth: '130px' }}>
               <select
                 className="form-select"
                 value={selectedRole}
@@ -532,7 +529,7 @@ export const UserManagement = ({ activeMainTab: externalActiveMainTab, setActive
                 />
               </div>
 
-              <div style={{ width: '160px' }}>
+              <div style={{ width: '160px', flex: '1 1 auto', minWidth: '130px' }}>
                 <select
                   className="form-select"
                   value={solicitudEstadoFilter}
@@ -675,380 +672,41 @@ export const UserManagement = ({ activeMainTab: externalActiveMainTab, setActive
         </>
       )}
 
-      {/* MODAL: CREAR / EDITAR USUARIO */}
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '480px', width: '92%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', margin: 0 }}>
-                {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
-              </h2>
-              <button onClick={handleCloseModal} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
-            </div>
+      {/* MODAL 1: CREAR / EDITAR USUARIO */}
+      <ModalUsuario
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        editingUser={editingUser}
+        formData={formData}
+        setFormData={setFormData}
+        handleNombreChange={handleNombreChange}
+        handleApellidoChange={handleApellidoChange}
+        handleUsernameChange={handleUsernameChange}
+        roles={roles}
+        userFormError={userFormError}
+        onSubmit={handleSubmit}
+      />
 
-            <form onSubmit={handleSubmit}>
-              {userFormError && (
-                <div className="alert-error" style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', padding: '0.6rem 0.75rem' }}>
-                  <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                  <span>{userFormError}</span>
-                </div>
-              )}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
-                <div className="form-group">
-                  <label className="form-label">Nombre *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    style={{ paddingLeft: '0.6rem' }}
-                    placeholder="Ej. María"
-                    value={formData.nombre}
-                    onChange={handleNombreChange}
-                    required
-                  />
-                </div>
+      {/* MODAL 2: AUTORIZAR Y GENERAR PIN TEMPORAL */}
+      <ModalAutorizarPin
+        isOpen={Boolean(selectedSolicitudForAuth)}
+        onClose={() => setSelectedSolicitudForAuth(null)}
+        solicitud={selectedSolicitudForAuth}
+        pinTemporalInput={pinTemporalInput}
+        setPinTemporalInput={setPinTemporalInput}
+        authLoading={authLoading}
+        authError={authError}
+        onGenerarPin={() => setPinTemporalInput(generarPinAleatorio())}
+        onSubmit={handleConfirmAutorizar}
+      />
 
-                <div className="form-group">
-                  <label className="form-label">Apellido *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    style={{ paddingLeft: '0.6rem' }}
-                    placeholder="Ej. López"
-                    value={formData.apellido}
-                    onChange={handleApellidoChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Nombre de Usuario (Login) *</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  style={{ paddingLeft: '0.6rem' }}
-                  placeholder="Ej. maria_lopez"
-                  value={formData.username}
-                  onChange={handleUsernameChange}
-                  required
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
-                <div className="form-group">
-                  <label className="form-label">Teléfono</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    style={{ paddingLeft: '0.6rem' }}
-                    placeholder="7000-0000"
-                    value={formData.telefono}
-                    onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Rol del Sistema *</label>
-                  <select
-                    className="form-select"
-                    value={formData.rol}
-                    onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
-                    required
-                  >
-                    <option value="">Seleccionar rol...</option>
-                    {roles.map(r => (
-                      <option key={r.id} value={r.id}>{r.nombre}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  Contraseña {editingUser ? '(Dejar vacío para no modificar)' : '*'}
-                </label>
-                <input
-                  type="password"
-                  className="form-input"
-                  style={{ paddingLeft: '0.6rem' }}
-                  placeholder={editingUser ? "Mínimo 8 caracteres (opcional)" : "Mínimo 8 caracteres"}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required={!editingUser}
-                  minLength={8}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1.25rem' }}>
-                <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={handleCloseModal}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>
-                  {editingUser ? 'Guardar' : 'Crear Usuario'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: AUTORIZAR Y GENERAR PIN TEMPORAL */}
-      {selectedSolicitudForAuth && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '440px', width: '92%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                <ShieldCheck size={20} style={{ color: 'var(--yellow)' }} />
-                Autorizar Restablecimiento
-              </h2>
-              <button
-                onClick={() => setSelectedSolicitudForAuth(null)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleConfirmAutorizar}>
-              {authError && (
-                <div className="alert-error" style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', padding: '0.6rem 0.75rem' }}>
-                  <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                  <span>{authError}</span>
-                </div>
-              )}
-              <div style={{ padding: '0.85rem', backgroundColor: 'var(--bg-element)', borderRadius: '6px', border: '1px solid var(--border)', marginBottom: '1rem' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ticket</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--yellow)', marginBottom: '0.5rem' }}>
-                  {selectedSolicitudForAuth.numero_ticket}
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--white)', fontWeight: 600 }}>
-                  Usuario: {selectedSolicitudForAuth.usuario_nombre} {selectedSolicitudForAuth.usuario_apellido}
-                </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Cuenta: @{selectedSolicitudForAuth.usuario_username} ({selectedSolicitudForAuth.usuario_rol})
-                </div>
-              </div>
-
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <label className="form-label" style={{ margin: 0 }}>PIN / Clave Temporal de Acceso *</label>
-                  <button
-                    type="button"
-                    onClick={() => setPinTemporalInput(generarPinAleatorio())}
-                    style={{ background: 'none', border: 'none', color: 'var(--blue)', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    Regenerar PIN
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  maxLength={6}
-                  className="form-input"
-                  style={{ paddingLeft: '0.6rem', fontFamily: 'monospace', fontSize: '1.25rem', fontWeight: 800, color: 'var(--yellow)', letterSpacing: '0.12em' }}
-                  value={pinTemporalInput}
-                  onChange={(e) => {
-                    const cleanVal = e.target.value.replace(/\D/g, '').slice(0, 6);
-                    setPinTemporalInput(cleanVal);
-                  }}
-                  placeholder="Ej. 583920"
-                  required
-                />
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                  PIN únicamente numérico de 6 dígitos. El usuario usará esta clave para iniciar sesión y el sistema le exigirá cambiarla de inmediato.
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1.25rem' }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                  onClick={() => setSelectedSolicitudForAuth(null)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1 }}
-                  disabled={authLoading}
-                >
-                  {authLoading ? 'Autorizando...' : 'Autorizar y Generar Hoja'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: HOJA DE AUTORIZACIÓN IMPRIMIBLE */}
-      {selectedSolicitudForPrint && (
-        <div className="modal-overlay">
-          <div className="modal-content print-modal-content" style={{ maxWidth: '640px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--white)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                <Printer size={18} style={{ color: 'var(--yellow)' }} />
-                Vista Previa de Hoja de Restablecimiento
-              </h2>
-              <button
-                onClick={() => setSelectedSolicitudForPrint(null)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Mensaje de confirmación del sistema */}
-            <div
-              className="no-print"
-              style={{
-                marginBottom: '1rem',
-                padding: '0.75rem 1rem',
-                backgroundColor: '#dcfce7',
-                color: '#15803d',
-                borderRadius: '6px',
-                border: '1px solid #bbf7d0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.65rem',
-                fontSize: '0.85rem',
-                fontWeight: 600
-              }}
-            >
-              <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
-              <span>
-                Clave temporal generada exitosamente para {selectedSolicitudForPrint.usuario_nombre} {selectedSolicitudForPrint.usuario_apellido}.
-              </span>
-            </div>
-
-            {/* DOCUMENTO FORMAL IMPRIMIBLE */}
-            <div id="printable-auth-sheet" style={{
-              backgroundColor: '#ffffff',
-              color: '#000000',
-              padding: '2rem',
-              borderRadius: '6px',
-              fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-              fontSize: '12pt',
-              lineHeight: 1.5,
-              border: '1px solid #d1d5db'
-            }}>
-              {/* Encabezado Institucional */}
-              <div style={{ textAlign: 'center', borderBottom: '2px solid #000000', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '16pt', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  TRANSPORTES MININO, S.A.
-                </div>
-                <div style={{ fontSize: '10pt', color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '0.15rem' }}>
-                  Departamento de Tecnologías de la Información y Seguridad
-                </div>
-                <div style={{ fontSize: '13pt', fontWeight: 800, marginTop: '0.5rem', textTransform: 'uppercase', color: '#111827' }}>
-                  CONSTANCIA Y AUTORIZACIÓN DE RESTABLECIMIENTO DE CONTRASEÑA
-                </div>
-              </div>
-
-              {/* Ficha de Información de la Solicitud */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem', backgroundColor: '#f9fafb', padding: '0.85rem', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
-                <div>
-                  <span style={{ fontSize: '9pt', color: '#6b7280', textTransform: 'uppercase', fontWeight: 700, display: 'block' }}>Folio / Ticket:</span>
-                  <strong style={{ fontSize: '12pt', color: '#1e40af' }}>{selectedSolicitudForPrint.numero_ticket}</strong>
-                </div>
-                <div>
-                  <span style={{ fontSize: '9pt', color: '#6b7280', textTransform: 'uppercase', fontWeight: 700, display: 'block' }}>Fecha de Emisión:</span>
-                  <strong style={{ fontSize: '10pt' }}>{new Date().toLocaleString()}</strong>
-                </div>
-              </div>
-
-              {/* Detalles del Usuario y Administrador */}
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1.25rem', fontSize: '10pt' }}>
-                <tbody>
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.45rem', fontWeight: 700, width: '38%', color: '#374151' }}>Usuario Solicitante:</td>
-                    <td style={{ padding: '0.45rem', fontWeight: 600 }}>{selectedSolicitudForPrint.usuario_nombre} {selectedSolicitudForPrint.usuario_apellido}</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.45rem', fontWeight: 700, color: '#374151' }}>Nombre de Usuario (Login):</td>
-                    <td style={{ padding: '0.45rem', fontFamily: 'monospace', fontWeight: 700 }}>{selectedSolicitudForPrint.usuario_username}</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.45rem', fontWeight: 700, color: '#374151' }}>Rol / Área en el Sistema:</td>
-                    <td style={{ padding: '0.45rem' }}>{selectedSolicitudForPrint.usuario_rol || 'Usuario Operativo'}</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.45rem', fontWeight: 700, color: '#374151' }}>Fecha de Solicitud Inicial:</td>
-                    <td style={{ padding: '0.45rem' }}>{selectedSolicitudForPrint.fecha_solicitud ? new Date(selectedSolicitudForPrint.fecha_solicitud).toLocaleString() : '—'}</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.45rem', fontWeight: 700, color: '#374151' }}>Administrador que Autoriza:</td>
-                    <td style={{ padding: '0.45rem', fontWeight: 600 }}>{selectedSolicitudForPrint.autorizado_por_nombre || 'Administrador del Sistema'}</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '0.45rem', fontWeight: 700, color: '#374151' }}>Fecha de Autorización:</td>
-                    <td style={{ padding: '0.45rem' }}>{selectedSolicitudForPrint.fecha_autorizacion ? new Date(selectedSolicitudForPrint.fecha_autorizacion).toLocaleString() : new Date().toLocaleString()}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* Recuadro de Clave Temporal */}
-              <div style={{ textAlign: 'center', border: '2px dashed #000000', padding: '1rem', marginBottom: '1.25rem', backgroundColor: '#fffbeb' }}>
-                <span style={{ fontSize: '9pt', color: '#92400e', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', display: 'block' }}>
-                  CLAVE / PIN TEMPORAL DE ACCESO ASIGNADO:
-                </span>
-                <span style={{ fontSize: '18pt', fontFamily: 'monospace', fontWeight: 900, color: '#b45309', letterSpacing: '0.1em', display: 'block', marginTop: '0.25rem' }}>
-                  {selectedSolicitudForPrint.pin_temporal || '000000'}
-                </span>
-                <span style={{ fontSize: '8.5pt', color: '#78350f', display: 'block', marginTop: '0.35rem' }}>
-                  * IMPORTANTE: Esta clave es de un solo uso. El sistema le exigirá obligatoriamente su cambio en el primer inicio de sesión.
-                </span>
-              </div>
-
-              {/* Cláusula y Declaración de Conformidad */}
-              <p style={{ fontSize: '8.5pt', color: '#4b5563', textAlign: 'justify', marginBottom: '2.5rem', lineHeight: 1.4 }}>
-                Por medio del presente documento se hace constar que el usuario solicitante ha requerido la restitución de sus credenciales de acceso al Sistema de Gestión TM y el Administrador ha autorizado la emisión de la clave temporal indicada. Ambas partes firman de conformidad según las políticas de seguridad y confidencialidad de la empresa.
-              </p>
-
-              {/* Recuadros de Firma */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '1.5rem', textAlign: 'center' }}>
-                <div>
-                  <div style={{ borderBottom: '1px solid #000000', marginBottom: '0.4rem', height: '40px' }}></div>
-                  <strong style={{ fontSize: '9pt', display: 'block', textTransform: 'uppercase' }}>
-                    {selectedSolicitudForPrint.usuario_nombre} {selectedSolicitudForPrint.usuario_apellido}
-                  </strong>
-                  <span style={{ fontSize: '8pt', color: '#6b7280' }}>Firma del Usuario Solicitante</span>
-                </div>
-
-                <div>
-                  <div style={{ borderBottom: '1px solid #000000', marginBottom: '0.4rem', height: '40px' }}></div>
-                  <strong style={{ fontSize: '9pt', display: 'block', textTransform: 'uppercase' }}>
-                    {selectedSolicitudForPrint.autorizado_por_nombre || 'Administrador del Sistema'}
-                  </strong>
-                  <span style={{ fontSize: '8pt', color: '#6b7280' }}>Firma y Sello del Administrador que Autoriza</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Botones de Acción (Ocultos al imprimir) */}
-            <div className="no-print" style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => setSelectedSolicitudForPrint(null)}
-              >
-                Cerrar
-              </button>
-              <button
-                type="button"
-                className="btn-primary"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.55rem 1.25rem' }}
-                onClick={handlePrintDocument}
-              >
-                <Printer size={16} />
-                <span>Imprimir Hoja de Autorización</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL 3: HOJA DE AUTORIZACIÓN IMPRIMIBLE */}
+      <ModalImprimirHoja
+        isOpen={Boolean(selectedSolicitudForPrint)}
+        onClose={() => setSelectedSolicitudForPrint(null)}
+        solicitud={selectedSolicitudForPrint}
+        onPrint={handlePrintDocument}
+      />
 
       {/* DIÁLOGO CONFIRMACIÓN TOGGLE ACTIVO */}
       {isConfirmOpen && userToConfirm && (
@@ -1090,87 +748,10 @@ export const UserManagement = ({ activeMainTab: externalActiveMainTab, setActive
       )}
 
       {/* DIÁLOGO CONFIRMACIÓN GENERAL DEL SISTEMA */}
-      {confirmDialog && (
-        <div className="modal-overlay" style={{ zIndex: 10001 }}>
-          <div className="modal-content" style={{ maxWidth: '400px', width: '92%' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem', color: 'var(--white)' }}>
-              {confirmDialog.title}
-            </h3>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.25rem', lineHeight: 1.45 }}>
-              {confirmDialog.message}
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                className="btn-secondary"
-                style={{ flex: 1 }}
-                onClick={() => setConfirmDialog(null)}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn-primary"
-                style={{
-                  flex: 1,
-                  backgroundColor: confirmDialog.confirmColor || 'var(--blue)',
-                  borderColor: 'transparent'
-                }}
-                onClick={async () => {
-                  const action = confirmDialog.onConfirm;
-                  setConfirmDialog(null);
-                  if (action) await action();
-                }}
-              >
-                {confirmDialog.confirmText || 'Confirmar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog dialog={confirmDialog} onCancel={() => setConfirmDialog(null)} />
 
       {/* NOTIFICACIÓN TOAST DEL SISTEMA */}
-      {toast && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '1.5rem',
-            right: '1.5rem',
-            zIndex: 10005,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            padding: '0.85rem 1.25rem',
-            borderRadius: '8px',
-            backgroundColor: toast.type === 'success' ? '#15803d' : toast.type === 'error' ? '#b91c1c' : '#d97706',
-            color: '#ffffff',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -4px rgba(0, 0, 0, 0.15)',
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            maxWidth: '440px'
-          }}
-        >
-          {toast.type === 'success' && <CheckCircle2 size={20} style={{ flexShrink: 0 }} />}
-          {toast.type === 'error' && <AlertCircle size={20} style={{ flexShrink: 0 }} />}
-          {toast.type === 'warning' && <AlertCircle size={20} style={{ flexShrink: 0 }} />}
-          <span style={{ flex: 1 }}>{toast.message}</span>
-          <button
-            onClick={() => setToast(null)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              cursor: 'pointer',
-              padding: 0,
-              display: 'flex',
-              alignItems: 'center',
-              opacity: 0.85
-            }}
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
 
       {/* Estilos para impresión limpia */}
       <style>{`

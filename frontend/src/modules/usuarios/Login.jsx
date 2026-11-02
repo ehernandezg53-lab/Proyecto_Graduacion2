@@ -200,7 +200,7 @@ export const Login = () => {
                 )}
 
                 <div className="form-group">
-                  <label className="form-label">Nombre de Usuario (Login) *</label>
+                  <label className="form-label">Nombre de Usuario (Login)</label>
                   <div className="input-container">
                     <User className="input-icon" size={16} />
                     <input

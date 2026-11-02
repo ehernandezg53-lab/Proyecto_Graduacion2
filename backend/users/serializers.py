@@ -106,11 +106,11 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return usuario
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
+        # Por seguridad y principio de no repudio (ISO/IEC 27001), la contraseña no puede modificarse
+        # mediante la edición de usuarios; únicamente a través del flujo formal de restablecimiento.
+        validated_data.pop('password', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        if password:
-            instance.set_password(password)
         instance.save()
         return instance
 

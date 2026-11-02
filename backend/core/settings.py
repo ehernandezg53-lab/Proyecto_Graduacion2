@@ -39,7 +39,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +49,14 @@ MIDDLEWARE = [
     # Middleware no intrusivo de bitácora ISO/IEC 27001 (A.8.15)
     'bitacora.middleware.BitacoraMiddleware',
 ]
+
+# En producción (Render/Railway/Linux) whitenoise sirve archivos estáticos.
+# Si el entorno local no lo tiene instalado, se omite para permitir desarrollo sin fallos.
+try:
+    import whitenoise  # noqa: F401
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+except ImportError:
+    pass
 
 ROOT_URLCONF = 'core.urls'
 
@@ -145,9 +152,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# =====================================================================
-# CONFIGURACIÓN DE REGISTROS DEL SISTEMA (LOGGING) - ISO/IEC 27001 (A.8.15)
-# =====================================================================
+# CONFIGURACIÓN DE REGISTROS DEL SISTEMA
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 

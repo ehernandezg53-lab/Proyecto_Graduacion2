@@ -21,6 +21,19 @@ class ConductorSerializer(serializers.ModelSerializer):
         model = Conductor
         fields = ['id_conductor', 'codigo_carnet', 'nombre', 'fecha_vencimiento_licencia', 'activo', 'fecha_creacion']
 
+    def validate_codigo_carnet(self, value):
+        if value:
+            clean_val = str(value).strip()
+            if not clean_val.isdigit() or len(clean_val) != 6:
+                raise serializers.ValidationError("El código de carnet debe contener exactamente 6 dígitos numéricos.")
+            qs = Conductor.objects.filter(codigo_carnet=clean_val)
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise serializers.ValidationError("Este código de carnet ya está registrado para otro conductor.")
+            return clean_val
+        return value
+
 
 class RolloSerializer(serializers.ModelSerializer):
     viaje_numero = serializers.ReadOnlyField(source='viaje.numero_viaje')

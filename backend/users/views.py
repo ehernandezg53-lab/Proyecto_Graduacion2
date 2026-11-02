@@ -21,8 +21,7 @@ from .serializers import (
 
 class LoginRateThrottle(AnonRateThrottle):
     """
-    Control de tasa para mitigar ataques de fuerza bruta en login (OWASP A07 / ISO A.5.17).
-    Restringe a un máximo de 5 intentos por minuto por dirección IP.
+    Control de tasa para mitigar ataques 
     """
     scope = 'login'
     rate = '5/minute'
@@ -37,8 +36,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 @permission_classes([permissions.AllowAny])
 def logout_view(request):
     """
-    Revoca formalmente el refresh_token de sesión colocándolo en la lista negra (Blacklist)
-    en cumplimiento con el Control A.5.15 de ISO/IEC 27001 y OWASP A07:2025.
+    Revoca formalmente el refresh_token de sesión
     """
     refresh_token = request.data.get('refresh_token')
     if not refresh_token:
@@ -76,8 +74,7 @@ def current_user_view(request):
 @permission_classes([permissions.AllowAny])
 def solicitar_restablecimiento_view(request):
     """
-    Permite a un usuario solicitar el restablecimiento de su contraseña desde la pantalla de login.
-    Genera un ticket de solicitud correlativo (TKT-XXXXX) para ser presentado al administrador.
+    Permite a un usuario solicitar el restablecimiento de su contraseña 
     """
     username = request.data.get('username', '').strip()
     motivo = request.data.get('motivo', '').strip()
@@ -116,7 +113,7 @@ def solicitar_restablecimiento_view(request):
             "fecha_solicitud": solicitud_existente.fecha_solicitud
         }, status=status.HTTP_200_OK)
 
-    # Generar correlativo de ticket: TKT-10001, etc.
+    # Generar correlativo de ticket.
     tickets = SolicitudRestablecimiento.objects.exclude(numero_ticket__isnull=True).exclude(numero_ticket='').values_list('numero_ticket', flat=True)
     correlativos = []
     for s in tickets:
@@ -146,8 +143,7 @@ def solicitar_restablecimiento_view(request):
 @permission_classes([permissions.IsAuthenticated])
 def cambiar_password_obligatorio_view(request):
     """
-    Exigido en el primer ingreso cuando el usuario entra con un PIN / pase temporal.
-    Valida la clave temporal actual, verifica los requisitos de seguridad y actualiza la contraseña.
+    Cambio de contraseña obligatorio en el primer ingreso cuando el usuario entra con un PIN .
     """
     password_actual = request.data.get('password_actual', '').strip()
     password_nueva = request.data.get('password_nueva', '').strip()

@@ -153,7 +153,7 @@ export const DashboardKpis = ({ kpis, onNavigate }) => {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
             <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <ShieldAlert size={17} /> Auditoría y Seguridad ISO 27001
+              <ShieldAlert size={17} /> Auditoría
             </h3>
             <button
               className="btn-action"

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Truck, LogOut } from 'lucide-react';
+import { Truck, LogOut, Menu, X } from 'lucide-react';
 
-export const Navbar = () => {
+export const Navbar = ({ isSidebarOpen, toggleSidebar }) => {
   const { user, logout } = useAuth();
 
   const getRoleBadgeClass = (roleName) => {
@@ -23,24 +23,41 @@ export const Navbar = () => {
 
   return (
     <header className="navbar">
-      <div className="navbar-brand">
-        <div className="brand-icon-box" style={{ width: '36px', height: '36px', marginBottom: 0 }}>
-          <Truck size={20} />
+      <div className="navbar-left">
+        <button
+          type="button"
+          className="sidebar-mobile-toggle"
+          onClick={toggleSidebar}
+          aria-label={isSidebarOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+          title={isSidebarOpen ? "Cerrar menú" : "Abrir menú"}
+        >
+          {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+
+        <div className="navbar-brand">
+          <div className="brand-icon-box">
+            <Truck size={19} />
+          </div>
+          <span className="brand-title-desktop">
+            Sistema de Gestión <strong style={{ color: 'var(--yellow)' }}>TM</strong>
+          </span>
+          <span className="brand-title-mobile">
+            Gestión <strong style={{ color: 'var(--yellow)' }}>TM</strong>
+          </span>
         </div>
-        <span>Sistema de Gestión <strong style={{ color: 'var(--yellow)' }}>TM</strong></span>
       </div>
 
       {user && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="navbar-right">
           <div className="user-profile-badge">
             <div className="avatar">
               {getInitials(user.nombre, user.apellido)}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '0.4rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--white)' }}>
+            <div className="user-info-text">
+              <span className="user-full-name">
                 {user.nombre} {user.apellido}
               </span>
-              <span className={`badge-role ${getRoleBadgeClass(user.rol)}`} style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', marginTop: '0.15rem' }}>
+              <span className={`badge-role ${getRoleBadgeClass(user.rol)}`}>
                 {user.rol || 'Sin Rol'}
               </span>
             </div>
@@ -48,16 +65,11 @@ export const Navbar = () => {
 
           <button
             onClick={logout}
-            className="btn-secondary"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.4rem',
-              padding: '0.4rem 0.8rem', fontSize: '0.825rem', color: 'var(--danger)',
-              borderColor: 'rgba(220, 38, 38, 0.3)'
-            }}
+            className="btn-secondary btn-logout"
             title="Cerrar sesión"
           >
             <LogOut size={15} />
-            <span>Salir</span>
+            <span className="logout-text">Salir</span>
           </button>
         </div>
       )}

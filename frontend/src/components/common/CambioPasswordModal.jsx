@@ -28,6 +28,7 @@ export const CambioPasswordModal = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   if (!user || !user.cambio_temporal) {
     return null;
@@ -110,8 +111,6 @@ export const CambioPasswordModal = () => {
       setLoading(false);
     }
   };
-
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   const handleCancelAndExit = () => {
     setShowExitConfirm(true);
@@ -235,7 +234,7 @@ export const CambioPasswordModal = () => {
         <form onSubmit={handleSubmit}>
           {/* Contraseña Temporal Actual */}
           <div className="form-group" style={{ marginBottom: '1rem' }}>
-            <label className="form-label">Contraseña Temporal Actual *</label>
+            <label className="form-label">Contraseña Temporal Actual</label>
             <div className="input-container">
               <Lock className="input-icon" size={16} />
               <input
@@ -268,7 +267,7 @@ export const CambioPasswordModal = () => {
             }}
           >
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label">Nueva Contraseña *</label>
+              <label className="form-label">Nueva Contraseña</label>
               <div className="input-container">
                 <Lock className="input-icon" size={16} />
                 <input
@@ -292,7 +291,7 @@ export const CambioPasswordModal = () => {
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label">Confirmar Contraseña *</label>
+              <label className="form-label">Confirmar Contraseña</label>
               <div className="input-container">
                 <Lock className="input-icon" size={16} />
                 <input
