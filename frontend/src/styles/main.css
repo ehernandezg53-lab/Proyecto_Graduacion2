@@ -322,6 +322,26 @@ body.sidebar-open-locked {
   user-select: none;
 }
 
+.navbar .brand-icon-box {
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.navbar .brand-icon-box .brand-letters {
+  color: var(--yellow);
+  font-weight: 900;
+  font-size: 0.88rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
 .navbar-brand span strong {
   color: var(--yellow);
 }

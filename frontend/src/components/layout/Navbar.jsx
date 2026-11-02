@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Truck, LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 
 export const Navbar = ({ isSidebarOpen, toggleSidebar }) => {
   const { user, logout } = useAuth();
@@ -36,7 +36,7 @@ export const Navbar = ({ isSidebarOpen, toggleSidebar }) => {
 
         <div className="navbar-brand">
           <div className="brand-icon-box">
-            <Truck size={19} />
+            <span className="brand-letters">TM</span>
           </div>
           <span className="brand-title-desktop">
             Sistema de Gestión <strong style={{ color: 'var(--yellow)' }}>TM</strong>
