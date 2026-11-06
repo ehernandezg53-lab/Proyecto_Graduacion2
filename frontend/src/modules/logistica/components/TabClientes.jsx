@@ -31,7 +31,7 @@ export const TabClientes = ({
             <tr style={{ backgroundColor: 'var(--bg-element)', borderBottom: '1px solid var(--border)' }}>
               <th style={{ padding: '0.75rem' }}>Número de Cliente</th>
               <th style={{ padding: '0.75rem' }}>Nombre / Empresa</th>
-              <th style={{ padding: '0.75rem' }}>Dirección Pre-establecida</th>
+              <th style={{ padding: '0.75rem' }}>Dirección</th>
               <th style={{ padding: '0.75rem', textAlign: 'center' }}>Acciones</th>
             </tr>
           </thead>

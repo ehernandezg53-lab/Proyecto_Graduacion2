@@ -15,6 +15,14 @@ class ClienteSerializer(serializers.ModelSerializer):
         model = Cliente
         fields = ['id_cliente', 'numero_cliente', 'nombre', 'direccion', 'fecha_creacion']
 
+    def validate_numero_cliente(self, value):
+        if value:
+            clean_val = str(value).strip()
+            if not clean_val.isdigit():
+                raise serializers.ValidationError("El número o código de cliente debe contener únicamente dígitos numéricos.")
+            return clean_val
+        return value
+
 
 class ConductorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -118,7 +126,7 @@ class ViajeSerializer(serializers.ModelSerializer):
         if 'conductor' in attrs or 'fecha_envio' in attrs:
             if not getattr(conductor, 'activo', True):
                 raise serializers.ValidationError({
-                    "conductor": f"El conductor {conductor.nombre} no se encuentra activo."
+                    "conductor": f"El piloto {conductor.nombre} está dado de baja y no puede ser asignado a un viaje."
                 })
 
             fecha_envio = attrs.get('fecha_envio') or (self.instance.fecha_envio if self.instance else date.today())

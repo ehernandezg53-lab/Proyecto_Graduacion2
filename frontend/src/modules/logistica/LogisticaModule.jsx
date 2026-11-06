@@ -102,7 +102,8 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
   const [conductorForm, setConductorForm] = useState({
     codigo_carnet: '',
     nombre: '',
-    fecha_vencimiento_licencia: ''
+    fecha_vencimiento_licencia: '',
+    activo: true
   });
 
   // Estados para Control e Inventario de Rollos de Alambre
@@ -601,7 +602,7 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
   // --- MANEJO DE CONDUCTORES ---
   const handleOpenNewConductorModal = () => {
     setEditingConductorId(null);
-    setConductorForm({ codigo_carnet: '', nombre: '', fecha_vencimiento_licencia: '' });
+    setConductorForm({ codigo_carnet: '', nombre: '', fecha_vencimiento_licencia: '', activo: true });
     setIsNewConductorModalOpen(true);
   };
 
@@ -610,7 +611,8 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
     setConductorForm({
       codigo_carnet: cond.codigo_carnet || '',
       nombre: cond.nombre || '',
-      fecha_vencimiento_licencia: cond.fecha_vencimiento_licencia || ''
+      fecha_vencimiento_licencia: cond.fecha_vencimiento_licencia || '',
+      activo: cond.activo !== false
     });
     setIsNewConductorModalOpen(true);
   };
@@ -641,7 +643,8 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
     try {
       const payload = {
         ...conductorForm,
-        codigo_carnet: carnetTrim || null
+        codigo_carnet: carnetTrim || null,
+        activo: conductorForm.activo !== false
       };
       if (editingConductorId) {
         await api.put(`/logistica/conductores/${editingConductorId}/`, payload);
@@ -651,7 +654,7 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
         showToast('success', "Conductor registrado correctamente.");
       }
       setIsNewConductorModalOpen(false);
-      setConductorForm({ codigo_carnet: '', nombre: '', fecha_vencimiento_licencia: '' });
+      setConductorForm({ codigo_carnet: '', nombre: '', fecha_vencimiento_licencia: '', activo: true });
       setEditingConductorId(null);
       await fetchConductores();
     } catch (err) {
@@ -661,6 +664,31 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
                      "No se pudo guardar el registro del conductor.";
       showToast('error', errMsg);
     }
+  };
+
+  const handleToggleBajaConductor = (cond) => {
+    const nuevoEstado = cond.activo === false;
+    const accionTexto = nuevoEstado ? "Reactivar" : "Dar de Baja";
+    const mensaje = nuevoEstado
+      ? `¿Desea reactivar al piloto "${cond.nombre}" para que vuelva a estar disponible en el sistema?`
+      : `¿Está seguro de dar de baja al piloto "${cond.nombre}" del sistema? No podrá ser asignado a nuevos viajes.`;
+
+    setConfirmDialog({
+      title: `${accionTexto} al Piloto`,
+      message: mensaje,
+      confirmText: accionTexto,
+      confirmColor: nuevoEstado ? "var(--success)" : "var(--danger)",
+      onConfirm: async () => {
+        try {
+          await api.patch(`/logistica/conductores/${cond.id_conductor}/`, { activo: nuevoEstado });
+          showToast('success', `Piloto "${cond.nombre}" ${nuevoEstado ? 'reactivado' : 'dado de baja'} correctamente.`);
+          await fetchConductores();
+        } catch (err) {
+          console.error("Error al actualizar estado del conductor:", err);
+          showToast('error', "No se pudo actualizar el estado del piloto.");
+        }
+      }
+    });
   };
 
   // --- MANEJO DE VEHÍCULOS (CAMIONES) ---
@@ -777,6 +805,7 @@ export const LogisticaModule = ({ activeSubTab: externalSubTab, setActiveSubTab:
           loading={loading}
           conductores={conductores}
           onEditConductor={handleEditConductor}
+          onToggleBajaConductor={handleToggleBajaConductor}
         />
       )}
 

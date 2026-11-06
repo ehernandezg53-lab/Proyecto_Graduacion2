@@ -32,10 +32,22 @@ export const ModalCliente = ({
             <label className="form-label">Número / Código de Cliente</label>
             <input
               type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               className="form-input"
               style={{ paddingLeft: '0.6rem', fontWeight: 700, color: 'var(--yellow)' }}
+              placeholder="Solo números"
               value={clienteForm.numero_cliente}
-              onChange={(e) => setClienteForm({ ...clienteForm, numero_cliente: e.target.value })}
+              onChange={(e) => setClienteForm({ ...clienteForm, numero_cliente: e.target.value.replace(/\D/g, '') })}
+              onKeyDown={(e) => {
+                if (
+                  !/^\d$/.test(e.key) &&
+                  !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', 'Home', 'End'].includes(e.key) &&
+                  !(e.ctrlKey || e.metaKey)
+                ) {
+                  e.preventDefault();
+                }
+              }}
               required
             />
           </div>
@@ -53,7 +65,7 @@ export const ModalCliente = ({
           </div>
 
           <div className="form-group">
-            <label className="form-label">Dirección Pre-establecida</label>
+            <label className="form-label">Dirección</label>
             <textarea
               className="form-input"
               rows="3"

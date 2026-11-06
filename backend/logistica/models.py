@@ -10,7 +10,7 @@ class Cliente(models.Model):
 
     class Meta:
         db_table = 'cliente'
-        ordering = ['numero_cliente']
+        ordering = ['id_cliente']
 
     def __str__(self):
         return f"{self.numero_cliente} - {self.nombre}"
@@ -26,7 +26,7 @@ class Conductor(models.Model):
 
     class Meta:
         db_table = 'conductor'
-        ordering = ['nombre']
+        ordering = ['id_conductor']
 
     def __str__(self):
         return self.nombre

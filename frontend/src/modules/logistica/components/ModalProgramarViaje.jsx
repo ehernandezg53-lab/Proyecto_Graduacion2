@@ -103,10 +103,12 @@ export const ModalProgramarViaje = ({
             <CustomSelect
               options={[
                 { value: '', label: '-- Seleccionar Conductor --' },
-                ...conductores.map(c => ({
-                  value: c.id_conductor,
-                  label: `${c.nombre}${c.codigo_carnet ? ` - Carnet: ${c.codigo_carnet}` : ''}`
-                }))
+                ...conductores
+                  .filter(c => c.activo !== false)
+                  .map(c => ({
+                    value: c.id_conductor,
+                    label: `${c.nombre}${c.codigo_carnet ? ` - Carnet: ${c.codigo_carnet}` : ''}`
+                  }))
               ]}
               value={viajeForm.conductor}
               onChange={(e) => setViajeForm({ ...viajeForm, conductor: e.target.value })}

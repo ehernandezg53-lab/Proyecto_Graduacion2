@@ -63,6 +63,35 @@ export const ModalConductor = ({
             />
           </div>
 
+          <div className="form-group">
+            <label className="form-label">Estado del Piloto</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '0.4rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--white)' }}>
+                <input
+                  type="radio"
+                  name="conductorActivo"
+                  checked={conductorForm.activo !== false}
+                  onChange={() => setConductorForm({ ...conductorForm, activo: true })}
+                />
+                Activo
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--white)' }}>
+                <input
+                  type="radio"
+                  name="conductorActivo"
+                  checked={conductorForm.activo === false}
+                  onChange={() => setConductorForm({ ...conductorForm, activo: false })}
+                />
+                Dado de Baja (Inactivo)
+              </label>
+            </div>
+            {conductorForm.activo === false && (
+              <div style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.4rem' }}>
+                ⚠️ Al dar de baja al piloto, no podrá ser asignado a nuevos viajes en el sistema.
+              </div>
+            )}
+          </div>
+
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
             <button
               type="button"

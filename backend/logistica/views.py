@@ -31,12 +31,12 @@ class IsLogisticaOrAdmin(permissions.BasePermission):
         return rol.permisos.filter(nombre_permiso='ver_logistica').exists()
 
 class ClienteViewSet(viewsets.ModelViewSet):
-    queryset = Cliente.objects.all().order_by('numero_cliente')
+    queryset = Cliente.objects.all().order_by('id_cliente')
     serializer_class = ClienteSerializer
     permission_classes = [IsLogisticaOrAdmin]
 
     def get_queryset(self):
-        queryset = Cliente.objects.all().order_by('numero_cliente')
+        queryset = Cliente.objects.all().order_by('id_cliente')
         search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(
@@ -48,12 +48,12 @@ class ClienteViewSet(viewsets.ModelViewSet):
 
 
 class ConductorViewSet(viewsets.ModelViewSet):
-    queryset = Conductor.objects.all().order_by('nombre')
+    queryset = Conductor.objects.all().order_by('id_conductor')
     serializer_class = ConductorSerializer
     permission_classes = [IsLogisticaOrAdmin]
 
     def get_queryset(self):
-        queryset = Conductor.objects.all().order_by('nombre')
+        queryset = Conductor.objects.all().order_by('id_conductor')
         search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(
@@ -64,12 +64,12 @@ class ConductorViewSet(viewsets.ModelViewSet):
 
 
 class VehiculoLogisticaViewSet(viewsets.ModelViewSet):
-    queryset = Vehiculo.objects.all().order_by('-id_vehiculo')
+    queryset = Vehiculo.objects.all().order_by('id_vehiculo')
     serializer_class = VehiculoSerializer
     permission_classes = [IsLogisticaOrAdmin]
 
     def get_queryset(self):
-        queryset = Vehiculo.objects.all().order_by('-id_vehiculo')
+        queryset = Vehiculo.objects.all().order_by('id_vehiculo')
         search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(
